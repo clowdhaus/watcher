@@ -9,13 +9,9 @@
 
 import logging
 import sys
-import warnings
 
 import structlog
 from pythonjsonlogger import jsonlogger
-
-# https://github.com/jmespath/jmespath.py/issues/187
-warnings.filterwarnings(action='ignore', category=SyntaxWarning)
 
 # Setup jsonlogger to print JSON
 json_handler = logging.StreamHandler(sys.stdout)

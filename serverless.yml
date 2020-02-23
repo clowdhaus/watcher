@@ -33,6 +33,7 @@ provider:
     STAGE: ${opt:stage, 'dev'}
     REGION: ${self:provider.region}
     SNS_ARN_PREFIX: ${self:custom.snsArnPrefix}
+    PYTHONWARNINGS: ignore # https://github.com/jmespath/jmespath.py/issues/187
   tags:
     service: watcher
     environment: ${self:custom.stage_long.${self:provider.stage}}
@@ -67,13 +68,13 @@ plugins:
   - serverless-python-requirements
 
 functions:
-  githubReceive:
-    handler: lambdas/github.receive
+  hubReceive:
+    handler: lambdas/hub.receive
     layers:
       - { Ref: WatcherCoreLambdaLayer }
     description: Receive and validate GitHub webhooks before passing along payload
     iamRoleStatementsInherit: true
-    iamRoleStatementsName: ${self:service}-${self:provider.stage}-github-receive
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-receive
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -90,13 +91,21 @@ functions:
           path: watcher
           method: post
 
-  githubNewTag:
-    handler: lambdas/github.new_tag
+  hubNewTag:
+    handler: lambdas/hub.new_tag
     layers:
       - { Ref: WatcherCoreLambdaLayer }
+    timeout: 60
+    memorySize: 512
     description: Responds to new tag events
     iamRoleStatementsInherit: true
-    iamRoleStatementsName: ${self:service}-${self:provider.stage}-github-receive
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-new-tag
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
     events:
       - sns:
           topicName: Watcher-Tag
