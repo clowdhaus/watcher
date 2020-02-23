@@ -1,0 +1,33 @@
+{
+  "name": "watcher",
+  "version": "0.1.0",
+  "description": "Watches and responds to GitHub changes via webhooks",
+  "author": "Clowd Haus, LLC",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/clowdhaus/watcher/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clowdhaus/watcher.git"
+  },
+  "bugs": {
+    "url": "https://github.com/clowdhaus/watcher/issues"
+  },
+  "scripts": {
+    "commit": "npx git-cz"
+  },
+  "dependencies": {
+    "serverless": "^1.64.0",
+    "serverless-iam-roles-per-function": "^2.0.2",
+    "serverless-plugin-datadog": "^0.15.0",
+    "serverless-python-requirements": "^5.1.0"
+  },
+  "devDependencies": {
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+service: watcher
+
+frameworkVersion: ">=1.64.0"
+
+custom:
+  stage_long:
+    dev: development
+    prod: production
+  account_id: ${opt:account_id, '028920223318'}
+  lambdaArnPrefix: arn:aws:lambda:${self:provider.region}:${self:custom.account_id}:function:${self:service}-${self:provider.stage}
+  snsArnPrefix: arn:aws:sns:${self:provider.region}:${self:custom.account_id}
+  pythonRequirements:
+    usePoetry: false
+    dockerizePip: true
+  datadog:
+    addLayers: true
+    apiKey: ${ssm:/clowd/datadog_api_key~true}
+    flushMetricsToLogs: false
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  timeout: 5
+  memorySize: 256
+  logRetentionInDays: 30
+  deploymentBucket:
+    name: serverless-${self:custom.account_id}-${self:provider.region}
+    serverSideEncryption: AES256
+  versionFunctions: false
+  environment:
+    STAGE: ${opt:stage, 'dev'}
+    REGION: ${self:provider.region}
+    SNS_ARN_PREFIX: ${self:custom.snsArnPrefix}
+  tags:
+    service: watcher
+    environment: ${self:custom.stage_long.${self:provider.stage}}
+    createdby: serverless
+    repository: https://github.com/clowdhaus/watcher
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource:
+        - "*"
+
+layers:
+  watcherCore:
+    package:
+      artifact: layers/core/core.zip
+    description: Lambda layer containing core python libraries
+    compatibleRuntimes:
+      - python3.8
+    retain: false
+
+package:
+  exclude:
+    - "**/*"
+  include:
+    - lambdas/*.py
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-plugin-datadog
+  - serverless-python-requirements
+
+functions:
+  githubReceive:
+    handler: lambdas/github.receive
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    description: Receive and validate GitHub webhooks before passing along payload
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-github-receive
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_webhook_secret
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - "${self:custom.snsArnPrefix}:Watcher-*"
+    events:
+      - http:
+          path: watcher
+          method: post
+
+  githubNewTag:
+    handler: lambdas/github.new_tag
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    description: Responds to new tag events
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-github-receive
+    events:
+      - sns:
+          topicName: Watcher-Tag
+          displayName: Contains new tag event payloads
