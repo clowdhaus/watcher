@@ -121,7 +121,10 @@ def receive(event: Dict, _c: Dict) -> Dict:
     :returns: none
     """
     body = event.get('body')
+    #: Add in webhook "name"
+    body.update({'X-GitHub-Event': event.get('headers', {}).get('X-GitHub-Event')})
     print(body)
+
     if _valid_signature(headers=event.get('headers'), body=body):
         _distribute_payload(payload=json.loads(body))
         return {
@@ -200,6 +203,24 @@ def _update_readme_tags(repo: github.Repository, data: Dict):
     repo.update_file(path=readme, message='Tag section updated in README', content=final_content, sha=file.sha)
 
 
+def create_release(event: Dict, _c: Dict) -> Dict:
+    """
+    Lambda function that responds to new tag events to create a release.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
+    print(json.dumps(msg))
+
+    if msg.get('X-GitHub-Event') == 'created':
+        updated_repo = _get_github_repo(msg.get('repository', {}).get('full_name'))
+        tag = msg.get('ref')
+        message = ""
+        updated_repo.create_git_release(tag=tag, name=tag, message, draft=False, prerelease=False, target_commitish=NotSet)
+
+
 def new_tag(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function that responds to new tag events.
@@ -214,7 +235,7 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     metadata_repo = _get_github_repo('clowdhaus/metadata')
     updated_repo = _get_github_repo(msg.get('repository', {}).get('full_name'))
 
-    data = _get_tag_data(metadata_repo=metadata_repo, updated_repo=updated_repo, event_type=GithubEventType.tag)
+    data = _get_tag_data(metadata_repo=metadata_repo, updated_repo=updated_repo)
     _update_readme_tags(repo=metadata_repo, data=data)
 
 
