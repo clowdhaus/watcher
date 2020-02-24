@@ -110,3 +110,23 @@ functions:
       - sns:
           topicName: Watcher-Tag
           displayName: Contains new tag event payloads
+
+  hubPullRequest:
+    handler: lambdas/hub.pull_request
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    timeout: 60
+    memorySize: 512
+    description: Responds to pull request events
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-pull-request
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+    events:
+      - sns:
+          topicName: Watcher-Pull-Request
+          displayName: Contains pull request event payloads
