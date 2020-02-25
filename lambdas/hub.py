@@ -120,13 +120,14 @@ def receive(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    body = event.get('body')
+    raw = event.get('body')
+    body = json.loads(raw)
+    print(json.dumps(body))
     #: Add in webhook "name"
     body.update({'X-GitHub-Event': event.get('headers', {}).get('X-GitHub-Event')})
-    print(body)
 
-    if _valid_signature(headers=event.get('headers'), body=body):
-        _distribute_payload(payload=json.loads(body))
+    if _valid_signature(headers=event.get('headers'), body=raw):
+        _distribute_payload(payload=body)
         return {
             'statusCode': 202,
             'body': 'GitHub signature verified',
@@ -214,11 +215,17 @@ def create_release(event: Dict, _c: Dict) -> Dict:
     msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
     print(json.dumps(msg))
 
-    if msg.get('X-GitHub-Event') == 'created':
+    if msg.get('X-GitHub-Event') == 'create':
         updated_repo = _get_github_repo(msg.get('repository', {}).get('full_name'))
-        tag = msg.get('ref')
-        message = ""
-        updated_repo.create_git_release(tag=tag, name=tag, message, draft=False, prerelease=False, target_commitish=NotSet)
+        master = updated_repo.get_branch('master')
+        tag_name = msg.get('ref')
+        ref = updated_repo.get_git_ref(f'tags/{tag_name}')
+        tag = updated_repo.get_git_tag(sha=ref.object.sha)
+        message = f'### {tag_name}\n\n- {tag.message.lstrip("-").strip()}\n'
+
+        updated_repo.create_git_release(
+            tag=tag_name, name=tag_name, message=message, draft=False, prerelease=False, target_commitish=master
+        )
 
 
 def new_tag(event: Dict, _c: Dict) -> Dict:
@@ -319,7 +326,7 @@ def _update_readme_pull_requests(repo: github.Repository, data: Dict):
     repo.update_file(path=readme, message='Pull request section updated in README', content=final_content, sha=file.sha)
 
 
-def pull_request(event: Dict, _c: Dict) -> Dict:
+def pull_request(event: Dict, _c: Dict):
     """
     Lambda function that responds to pull request events.
 
@@ -335,3 +342,33 @@ def pull_request(event: Dict, _c: Dict) -> Dict:
     if msg.get('action') in ['opened', 'synchronize', 'reopened', 'closed']:
         data = _get_pull_request_data(metadata_repo=metadata_repo, payload=msg)
         _update_readme_pull_requests(repo=metadata_repo, data=data)
+
+
+def get_repositories_for_sync(_e: Dict, _c: Dict):
+    """
+    Lambda function that collects all source repositories and sends repository full name
+        over SNS topic for syncing/updating metadata
+
+    :param _e: lambda expected event object (unused)
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    token = _get_github_user_token()
+    git = Github(token)
+    repos = git.get_repos(type='sources', sort='updated')
+
+    for repo in repos:
+        sns.emit_sns_msg(message={'repository': repo.full_name}, topic_arn=f'{SNS_TOPIC_BASE}-Sync-Repository')
+
+
+def sync_repository_data(event: Dict, _c: Dict):
+    """
+    Lambda function that updates/syncrhonizes the repository metadata for the
+        repository recevied via SNS message
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    msg = sns.get_sns_msg(event=event, msg_key='repository')
+    print(json.dumps(msg))

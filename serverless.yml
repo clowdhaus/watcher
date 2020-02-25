@@ -1,6 +1,6 @@
 service: watcher
 
-frameworkVersion: ">=1.64.0"
+frameworkVersion: ">=1.65.0"
 
 custom:
   stage_long:
@@ -109,7 +109,25 @@ functions:
     events:
       - sns:
           topicName: Watcher-Tag
-          displayName: Contains new tag event payloads
+          displayName: Contains tag event payloads
+
+  hubCreateRelease:
+    handler: lambdas/hub.create_release
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    description: Responds to new tag events to create a release
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-create-release
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+    events:
+      - sns:
+          topicName: Watcher-Tag
+          displayName: Contains tag event payloads
 
   hubPullRequest:
     handler: lambdas/hub.pull_request

@@ -17,6 +17,18 @@
 | [`lambda/`](../lambdas) | Lambda function(s) source code and associated tests |
 | [`layers/`](../layers) | Package directories containing Dockerfiles for generating lambda layer artifacts |
 
+## Functionality
+
+| Description | Implemented |
+|:------------| :---------: |
+| Maintains list of open pull requests | ✅ |
+| Re-sync list of open pull requests on schedule | |
+| Maintains list of latest releases | ✅ |
+| Re-sync list of latest releases on schedule | |
+| Creates release automatically when new tag created | ✅ |
+| Modifies new repository settings upon creation | |
+| Re-sync repository settings on demand | |
+
 ## Conventions
 
 This repository uses the following tools and conventions:
