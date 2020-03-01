@@ -92,7 +92,7 @@ functions:
           method: post
 
   hubNewTag:
-    handler: lambdas/hub.new_tag
+    handler: lambdas/versions.new_tag
     layers:
       - { Ref: WatcherCoreLambdaLayer }
     timeout: 60
@@ -112,7 +112,7 @@ functions:
           displayName: Contains tag event payloads
 
   hubCreateRelease:
-    handler: lambdas/hub.create_release
+    handler: lambdas/versions.create_release
     layers:
       - { Ref: WatcherCoreLambdaLayer }
     description: Responds to new tag events to create a release
@@ -130,7 +130,7 @@ functions:
           displayName: Contains tag event payloads
 
   hubPullRequest:
-    handler: lambdas/hub.pull_request
+    handler: lambdas/pull_requests.pull_request
     layers:
       - { Ref: WatcherCoreLambdaLayer }
     timeout: 60
