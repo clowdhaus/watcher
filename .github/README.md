@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/python-3.8-blue.svg" alt="Python 3.8">
   <img src="http://public.serverless.com/badges/v3.svg" alt="Serverless">
   <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black">
+  <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly">
 </p>
 
 ## Table of Contents

@@ -10,7 +10,7 @@ help:
 
 .PHONY: setup
 setup: ## Setup local pipenv environment
-	@pip3 install pipenv && pipenv install --dev --pre --skip-lock
+	@pip3 install pipenv && pipenv install --dev --pre --skip-lock && pipenv update
 	@yarn
 
 .PHONY: test
