@@ -104,7 +104,7 @@ def _distribute_payload(payload: Dict):
         topic_arn = f'{SNS_TOPIC_BASE}-Tag'
     if payload.get('pull_request'):
         key = 'pull_request'
-        topic_arn = f'{SNS_TOPIC_BASE}-Pull-Request'
+        topic_arn = f'{SNS_TOPIC_BASE}-PullRequest'
 
     if key and topic_arn:
         sns.emit_sns_msg(message={key: payload}, topic_arn=topic_arn)

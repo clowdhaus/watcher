@@ -1,6 +1,6 @@
 service: watcher
 
-frameworkVersion: ">=1.65.0"
+frameworkVersion: '>=1.65.0'
 
 custom:
   stage_long:
@@ -9,6 +9,7 @@ custom:
   account_id: ${opt:account_id, '028920223318'}
   lambdaArnPrefix: arn:aws:lambda:${self:provider.region}:${self:custom.account_id}:function:${self:service}-${self:provider.stage}
   snsArnPrefix: arn:aws:sns:${self:provider.region}:${self:custom.account_id}
+  dynamodbArnPrefix: arn:aws:dynamodb:${self:provider.region}:${self:custom.account_id}:table
   pythonRequirements:
     usePoetry: false
     dockerizePip: true
@@ -34,6 +35,8 @@ provider:
     REGION: ${self:provider.region}
     SNS_ARN_PREFIX: ${self:custom.snsArnPrefix}
     PYTHONWARNINGS: ignore # https://github.com/jmespath/jmespath.py/issues/187
+    PULL_REQUEST_TABLE: watcher-pull-requests
+    VERSIONS_TABLE: watcher-versions
   tags:
     service: watcher
     environment: ${self:custom.stage_long.${self:provider.stage}}
@@ -45,7 +48,7 @@ provider:
         - xray:PutTraceSegments
         - xray:PutTelemetryRecords
       Resource:
-        - "*"
+        - '*'
 
 layers:
   watcherCore:
@@ -56,9 +59,46 @@ layers:
       - python3.8
     retain: false
 
+resources:
+  Resources:
+    versionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.VERSIONS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        SSESpecification:
+          SSEEnabled: true
+        AttributeDefinitions:
+          - AttributeName: repository
+            AttributeType: S
+          - AttributeName: version
+            AttributeType: S
+        KeySchema:
+          - AttributeName: repository
+            KeyType: HASH
+          - AttributeName: version
+            KeyType: RANGE
+    pullRequestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PULL_REQUEST_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        SSESpecification:
+          SSEEnabled: true
+        AttributeDefinitions:
+          - AttributeName: repository
+            AttributeType: S
+          - AttributeName: pull_request
+            AttributeType: N
+        KeySchema:
+          - AttributeName: repository
+            KeyType: HASH
+          - AttributeName: pull_request
+            KeyType: RANGE
+
 package:
   exclude:
-    - "**/*"
+    - '**/*'
   include:
     - lambdas/*.py
 
@@ -85,7 +125,7 @@ functions:
         Action:
           - sns:Publish
         Resource:
-          - "${self:custom.snsArnPrefix}:Watcher-*"
+          - '${self:custom.snsArnPrefix}:Watcher-*'
     events:
       - http:
           path: watcher
@@ -136,6 +176,8 @@ functions:
     timeout: 60
     memorySize: 512
     description: Responds to pull request events
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-PullRequestsUpdateReadme
     iamRoleStatementsInherit: true
     iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-pull-request
     iamRoleStatements:
@@ -144,7 +186,44 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource:
+          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - '${self:custom.snsArnPrefix}:Watcher-*'
     events:
       - sns:
-          topicName: Watcher-Pull-Request
+          topicName: Watcher-PullRequest
           displayName: Contains pull request event payloads
+
+  pullRequestsUpdateReadme:
+    handler: lambdas/pull_requests.update_readme
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    timeout: 60
+    memorySize: 512
+    description: Updates pull request section of metadata repo README file
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-pull-requests-update-readme
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+    events:
+      - sns:
+          topicName: Watcher-PullRequestsUpdateReadme
+          displayName: Trigger to update pull request section of metadata repo README file
