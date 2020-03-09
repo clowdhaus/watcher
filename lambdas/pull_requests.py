@@ -27,7 +27,7 @@ def _get_pull_request_data(payload: Dict) -> Dict:
     Extract pull request data from triggered event.
 
     :param payload: pull request event payload
-    :returns: overall pull request data object
+    :returns: pull request data object
     """
     repo_full_name = payload.get('repository', {}).get('full_name')
     pr = payload.get('pull_request')

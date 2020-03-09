@@ -8,77 +8,55 @@
 """
 
 import json
+import os
 import re
 from typing import Dict
 
-import github
-
-from lambdas import hub, sns
+from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEventType
 
+#: DynamoDB table for versions
+VERSION_TABLE = os.environ.get('VERSION_TABLE')
+#: Name of repository where metadata will be displayed
+METADATA_REPO = 'clowdhaus/metadata'
 
-def _get_tag_data(metadata_repo: github.Repository, updated_repo: github.Repository) -> Dict:
+
+def _get_tag_data(payload: Dict) -> Dict:
     """
-    Extract tag data from event, persist in metatdata repo json files before returning.
+    Extract tag data from triggered event.
 
-    :param metadata_repo: repository where overall data objects are stored
-    :param updated_repo: repository that triggered change
-    :returns: overall tag data object
+    :param payload: tag event payload
+    :returns: tag data object
     """
-    #: Load existing data from metadata repo
-    key = GithubEventType.tag.value
-    data_filepath = f'data/{key}.json'
-    update_repo_fullname = updated_repo.full_name
-    data_file = metadata_repo.get_contents(data_filepath)
-    data = json.loads(data_file.decoded_content)
+    repository = payload.get('repository', {})
+    repo_full_name = repository.get('full_name')
+    repo = hub.get_github_repo(repo_full_name)
+    tags = repo.get_tags()
 
-    tags = updated_repo.get_tags()
-    url = f'https://github.com/{update_repo_fullname}/releases/tag'
-    updated_values = [{'tag': t.name, 'url': f'{url}/{t.name}'} for t in tags]
-    data.update({update_repo_fullname: updated_values})
-
-    #: Write back to metadata repository for storage
-    metadata_repo.update_file(
-        path=data_filepath,
-        message=f'{update_repo_fullname} {key} {updated_values[0].get(key)} added',
-        content=json.dumps(data),
-        sha=data_file.sha,
-    )
-    return data
+    return {'repository': repo_full_name, 'versions': [t.name for t in tags]}
 
 
-def _update_readme_tags(repo: github.Repository, data: Dict):
+def _update_version_table(data: dict):
     """
-    Update metdata tag section of README file.
+    Update version dynamodb table based on data provided.
 
-    :param repo: metadata repository object
-    :param data: data object containing tag data
+    :param data: data to add/update within table
     :returns: None
     """
-    readme = 'README.md'
-    file = repo.get_contents(readme)
-    result = ''
+    repo_full_name = data.get('repository')
+    key = {'repository': repo_full_name}
 
-    #: Create a section per module repo
-    for module, tags in sorted(data.items()):
-        lis = '\n\t'.join([f'<li><a href="{t.get("url")}">{t.get("tag")}</a></li>' for t in tags])
-        content = f'''
-#### `{module.split("/")[1]}` : [{tags[0].get("tag")}]({tags[0].get("url")})
-
-<details>
-<summary>All Tags</summary>
-    <ul>
-        {lis}
-    </ul>
-</details>
-    '''
-        result += content
-    #: Make sure tags are put back for next update
-    result = f'<!-- Tag Start -->\n{result}\n<!-- Tag End -->'
-    final_content = re.sub(
-        '<!-- Tag Start -->.*?<!-- Tag End -->', result, file.decoded_content.decode('utf-8'), flags=re.DOTALL
-    )
-    repo.update_file(path=readme, message='Tag section updated in README', content=final_content, sha=file.sha)
+    try:
+        #: Versions added/removed
+        expression = f'SET versions = :versions)'
+        attr_values = {
+            ':versions': data.get('versions'),
+        }
+        dynamodb.update_item(key=key, expression=expression, attr_values=attr_values)
+    except Exception:
+        #: Very first version
+        key.update(data)
+        dynamodb.put_item(item=key, table=VERSION_TABLE)
 
 
 def new_tag(event: Dict, _c: Dict) -> Dict:
@@ -92,11 +70,12 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
     print(json.dumps(msg))
 
-    metadata_repo = hub.get_github_repo('clowdhaus/metadata')
-    updated_repo = hub.get_github_repo(msg.get('repository', {}).get('full_name'))
+    #: Extract data and update DynamoDB table
+    data = _get_tag_data(payload=msg)
+    _update_version_table(data=data)
 
-    data = _get_tag_data(metadata_repo=metadata_repo, updated_repo=updated_repo)
-    _update_readme_tags(repo=metadata_repo, data=data)
+    #: No message payload, just triggering update to versions section of README
+    sns.emit_sns_msg(message={})
 
 
 def create_release(event: Dict, _c: Dict) -> Dict:
@@ -121,3 +100,47 @@ def create_release(event: Dict, _c: Dict) -> Dict:
         updated_repo.create_git_release(
             tag=tag_name, name=tag_name, message=message, draft=False, prerelease=False, target_commitish=master
         )
+
+
+def update_readme(event: Dict, _c: Dict) -> Dict:
+    """
+    Lambda function to update versions section of metadata repo README file.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    readme = 'README.md'
+    meta_repo = hub.get_github_repo(METADATA_REPO)
+    file = meta_repo.get_contents(readme)
+    result = ''
+
+    #: Iterate over all records
+    paginator = dynamodb.CLIENT.get_paginator('scan')
+    iterator = paginator.paginate(TableName=VERSION_TABLE)
+    for itr in iterator:
+        items = itr.get('Items')
+        for item in items:
+            data = dynamodb.deserialize(item)
+            repo, versions = data.get('repository'), data.get('versions')
+
+            #: Create a section per repository with all versions listed under dropdown
+            url = lambda v: f'https://github.com/{repo}/releases/tag/{v}'
+            lis = '\n\t'.join([f'<li><a href="{url(v)}">{v}</a></li>' for v in versions])
+            content = f'''
+#### `{repo.split("/")[1]}` : [{versions[0]}]({url(versions[0])})
+
+<details>
+<summary>All Tags</summary>
+    <ul>
+        {lis}
+    </ul>
+</details>
+    '''
+        result += content
+    #: Make sure tags are put back for next update
+    result = f'<!-- Tag Start -->\n{result}\n<!-- Tag End -->'
+    final_content = re.sub(
+        '<!-- Tag Start -->.*?<!-- Tag End -->', result, file.decoded_content.decode('utf-8'), flags=re.DOTALL
+    )
+    meta_repo.update_file(path=readme, message='Tag section updated in README', content=final_content, sha=file.sha)
