@@ -65,7 +65,7 @@ def _update_pull_request_table(action: str, data: dict):
             attr_values = {
                 ':age': age,
             }
-            dynamodb.update_item(key=key, expression=expression, attr_values=attr_values)
+            dynamodb.update_item(key=key, expression=expression, attr_values=attr_values, table=PR_TABLE)
         except Exception:
             key.update(data)
             dynamodb.put_item(item=key, table=PR_TABLE)

@@ -73,6 +73,19 @@ def get_github_repo(repo: str) -> github.Repository:
     return git.get_repo(repo)
 
 
+@functools.lru_cache()
+def get_github_org(org: str) -> github.Organization:
+    """
+    Get GitHub organization object.
+
+    :param repo: name of GitHub organization to retrieve
+    :returns: GitHub organization object
+    """
+    token = get_github_user_token()
+    git = Github(token)
+    return git.get_organization(org)
+
+
 def _valid_signature(headers: Dict, body: str) -> bool:
     """
     Determine if request signature is valid.

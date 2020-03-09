@@ -127,6 +127,41 @@ functions:
           path: watcher
           method: post
 
+  versionsSync:
+    handler: lambdas/versions.sync
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    timeout: 600
+    memorySize: 512
+    description: Sync all repository versions
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-VersionsUpdateReadme
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-versions-sync
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource:
+          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}'
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - '${self:custom.snsArnPrefix}:Watcher-*'
+    events:
+      - schedule:
+          name: your-scheduled-rate-event-name
+          description: 'your scheduled rate event description'
+          rate: cron(0 10 ? * MON-FRI *)
+
   versionsNewTag:
     handler: lambdas/versions.new_tag
     layers:
