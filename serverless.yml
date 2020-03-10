@@ -13,10 +13,6 @@ custom:
   pythonRequirements:
     usePoetry: false
     dockerizePip: true
-  datadog:
-    addLayers: true
-    apiKey: ${ssm:/clowd/datadog_api_key~true}
-    flushMetricsToLogs: false
 
 provider:
   name: aws
@@ -100,7 +96,6 @@ package:
 
 plugins:
   - serverless-iam-roles-per-function
-  - serverless-plugin-datadog
   - serverless-python-requirements
 
 functions:
