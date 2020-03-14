@@ -23,7 +23,7 @@
     "release": "semantic-release --conventional-commits --yes"
   },
   "dependencies": {
-    "serverless": "^1.65.0",
+    "serverless": "^1.66.0",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-python-requirements": "^5.1.0"
   },

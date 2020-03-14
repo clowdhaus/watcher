@@ -52,23 +52,13 @@ def _update_pull_request_table(action: str, data: dict):
     :param data: data to add/update within table
     :returns: None
     """
-    key = {'repository': data.get('repository'), 'pull_request': data.get('pull_request')}
-
     #: Evaluate record action - delete, update, add
     if action in {'closed'}:
+        key = {'repository': data.get('repository'), 'pull_request': data.get('pull_request')}
         dynamodb.delete_item(key=key, table=PR_TABLE)
     else:
         age = (datetime.now() - datetime.strptime(data.get('date'), '%Y-%m-%d')).days
-        try:
-            #: Any dynamic changes to update
-            expression = f'SET age = :age'
-            attr_values = {
-                ':age': age,
-            }
-            dynamodb.update_item(key=key, expression=expression, attr_values=attr_values, table=PR_TABLE)
-        except Exception:
-            key.update(data)
-            dynamodb.put_item(item=key, table=PR_TABLE)
+        dynamodb.put_item(item={**data, 'age': age}, table=PR_TABLE)
 
 
 def pull_request(event: Dict, _c: Dict):
@@ -121,7 +111,7 @@ def update_readme(event: Dict, _c: Dict):
     final = header + rows
 
     #: Make sure target replacement tags are put back for next update
-    result = f'<!-- PR Start -->\n{final}\n<!-- PR End -->\n'
+    result = f'<!-- PR Start -->\n{final}\n<!-- PR End -->'
     final_content = re.sub(
         '<!-- PR Start -->.*?<!-- PR End -->', result, file.decoded_content.decode('utf-8'), flags=re.DOTALL
     )

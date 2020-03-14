@@ -61,23 +61,13 @@ def _update_version_table(data: dict):
     key = {'repository': repo_full_name}
 
     if versions:
+        dynamodb.put_item(item={**key, 'versions': versions}, table=VERSION_TABLE)
+    else:
         try:
-            #: Versions added/removed
-            expression = f'SET versions = :versions)'
-            attr_values = {
-                ':versions': versions,
-            }
-            dynamodb.update_item(key=key, expression=expression, attr_values=attr_values, table=VERSION_TABLE)
+            #: no versions, remove from table
+            dynamodb.delete_item(key=key, table=VERSION_TABLE)
         except ClientError:
-            #: Very first version
-            key.update(data)
-            dynamodb.put_item(item=key, table=VERSION_TABLE)
-
-    try:
-        #: no versions, remove from table
-        dynamodb.delete_item(key=key, table=VERSION_TABLE)
-    except ClientError:
-        pass
+            pass
 
 
 def new_tag(event: Dict, _c: Dict) -> Dict:
@@ -152,13 +142,13 @@ def update_readme(event: Dict, _c: Dict) -> Dict:
 #### `{repo.split("/")[1]}` : [{versions[0]}]({url(versions[0])})
 
 <details>
-<summary>All Tags</summary>
+<summary>All Versions</summary>
     <ul>
         {lis}
     </ul>
 </details>
     '''
-        result += content
+            result += content
     #: Make sure tags are put back for next update
     result = f'<!-- Tag Start -->\n{result}\n<!-- Tag End -->'
     final_content = re.sub(
