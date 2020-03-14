@@ -11,15 +11,21 @@ import json
 import os
 import re
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List
+
+from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEventType
 
 #: DynamoDB table for pull requests
 PR_TABLE = os.environ.get('PULL_REQUEST_TABLE')
+#: Datetime format
+DATE_FORMAT = '%Y-%m-%d'
 #: Name of repository where metadata will be displayed
 METADATA_REPO = 'clowdhaus/metadata'
+#: GitHub Organization to collect version information from
+ORGANIZATION = 'clowdhaus'
 
 
 def _get_pull_request_data(payload: Dict) -> Dict:
@@ -44,6 +50,31 @@ def _get_pull_request_data(payload: Dict) -> Dict:
     }
 
 
+def _get_repository_pull_requests(repo: Repository) -> List[Dict]:
+    """
+    Get pull request data from repository provided.
+
+    :param repo: Github repository object
+    :returns: array of pull request data objects for given repository
+    """
+    repo_full_name = repo.full_name
+    prs = repo.get_pulls(state='open', sort='created')
+
+    return [
+        {
+            'repository': repo_full_name,
+            'pull_request': pr.number,
+            'url': pr.url,
+            'user': pr.user.login,
+            'date': pr.created_at.strftime(DATE_FORMAT),
+            'branch': pr.head.ref,
+            'mergeable': pr.mergeable,
+            'mergeable_state': pr.mergeable_state,
+        }
+        for pr in prs
+    ]
+
+
 def _update_pull_request_table(action: str, data: dict):
     """
     Update pull request dynamodb table based on action and data provided.
@@ -57,7 +88,7 @@ def _update_pull_request_table(action: str, data: dict):
         key = {'repository': data.get('repository'), 'pull_request': data.get('pull_request')}
         dynamodb.delete_item(key=key, table=PR_TABLE)
     else:
-        age = (datetime.now() - datetime.strptime(data.get('date'), '%Y-%m-%d')).days
+        age = (datetime.now() - datetime.strptime(data.get('date'), DATE_FORMAT)).days
         dynamodb.put_item(item={**data, 'age': age}, table=PR_TABLE)
 
 
@@ -118,3 +149,24 @@ def update_readme(event: Dict, _c: Dict):
     meta_repo.update_file(
         path=readme, message='Pull request section updated in README', content=final_content, sha=file.sha
     )
+
+
+def sync(event: Dict, _c: Dict) -> Dict:
+    """
+    Lambda function to sync all repository pull requests.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    #: Clear table first; removes deletes that weren't deleted
+    dynamodb.delete_all_items(key_ids=['repository', 'pull_request'], table=PR_TABLE)
+
+    org = hub.get_github_org(ORGANIZATION)
+    for repo in org.get_repos(type='sources', sort='updated', direction='desc'):
+        #: Extract data and update DynamoDB table
+        for data in _get_repository_pull_requests(repo=repo):
+            _update_pull_request_table(action='sync', data=data)
+
+    #: No message payload, just triggering update to versions section of README
+    sns.emit_sns_msg(message={})

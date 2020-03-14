@@ -9,7 +9,7 @@
 
 import decimal
 import os
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import boto3
 from boto3.dynamodb.types import TypeDeserializer
@@ -125,5 +125,23 @@ def delete_item(key: Dict, table: str, **kwargs) -> Dict:
     _table = RESOURCE.Table(table)
     try:
         return _table.delete_item(Key=key, **kwargs)
+    except ClientError:
+        raise
+
+
+def delete_all_items(key_ids: List[str], table: str, **kwargs):
+    """
+    Delete all objects from `table`.
+
+    :param key_ids: list of composite key ids
+    :param table: table name
+    :returns: none
+    """
+    _table = RESOURCE.Table(table)
+    try:
+        scan = _table.scan()
+        with _table.batch_writer() as batch:
+            for item in scan['Items']:
+                batch.delete_item(Key={k: item[k] for k in key_ids}, **kwargs)
     except ClientError:
         raise

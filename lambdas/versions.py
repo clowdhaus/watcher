@@ -12,7 +12,6 @@ import os
 import re
 from typing import Dict, Optional
 
-import github
 from botocore.exceptions import ClientError
 from github.Repository import Repository
 
@@ -23,7 +22,7 @@ from lambdas.hub import GithubEventType
 VERSION_TABLE = os.environ.get('VERSION_TABLE')
 #: Name of repository where metadata will be displayed
 METADATA_REPO = 'clowdhaus/metadata'
-#: Organization to collect version information from
+#: GitHub Organization to collect version information from
 ORGANIZATION = 'clowdhaus'
 
 
@@ -35,14 +34,12 @@ def _get_tag_data(payload: Dict, repo: Optional[Repository] = None) -> Dict:
     :param repo: optional repository object
     :returns: tag data object
     """
-
     if not repo:
         #: used for version events
-        repository = payload.get('repository', {})
-        repo_full_name = repository.get('full_name')
+        repo_full_name = payload.get('repository', {}).get('full_name')
         repo = hub.get_github_repo(repo_full_name)
     else:
-        #: provided syncing repository versions
+        #: used for out of band syncing repository versions
         repo_full_name = repo.full_name
     tags = repo.get_tags()
 

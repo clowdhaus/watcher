@@ -23,9 +23,9 @@
 | Description | Implemented |
 |:------------| :---------: |
 | Maintains list of open pull requests | ✅ |
-| Re-sync list of open pull requests on schedule | |
+| Re-sync list of open pull requests on schedule | ✅ |
 | Maintains list of latest releases | ✅ |
-| Re-sync list of latest releases on schedule | |
+| Re-sync list of latest releases on schedule | ✅ |
 | Creates release automatically when new tag created | ✅ |
 | Modifies new repository settings upon creation | |
 | Re-sync repository settings on demand | |

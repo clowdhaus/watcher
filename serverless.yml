@@ -153,8 +153,8 @@ functions:
           - '${self:custom.snsArnPrefix}:Watcher-*'
     events:
       - schedule:
-          name: your-scheduled-rate-event-name
-          description: 'your scheduled rate event description'
+          name: Watcher-VersionsSync
+          description: Sync all repository versions
           rate: cron(0 10 ? * MON-FRI *)
 
   versionsNewTag:
@@ -293,3 +293,41 @@ functions:
       - sns:
           topicName: Watcher-PullRequestsUpdateReadme
           displayName: Trigger to update pull request section of metadata repo README file
+
+
+  pullRequestsSync:
+    handler: lambdas/pull_requests.sync
+    layers:
+      - { Ref: WatcherCoreLambdaLayer }
+    timeout: 600
+    memorySize: 512
+    description: Sync all repository pull requests
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-PullRequestsUpdateReadme
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-pull-requests-sync
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:Scan
+          - dynamodb:BatchWriteItem
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+          - dynamodb:UpdateItem
+        Resource:
+          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - '${self:custom.snsArnPrefix}:Watcher-*'
+    events:
+      - schedule:
+          name: Watcher-PullRequestsSync
+          description: Sync all repository pull requests
+          rate: cron(0 10 ? * MON-FRI *)
