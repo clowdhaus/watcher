@@ -33,6 +33,8 @@ provider:
     PYTHONWARNINGS: ignore # https://github.com/jmespath/jmespath.py/issues/187
     PULL_REQUEST_TABLE: watcher-pull-requests
     VERSION_TABLE: watcher-versions
+    GITHUB_ORGANIZATION: clowdhaus
+    GITHUB_METADATA_REPO: clowdhaus/metadata
   tags:
     service: watcher
     environment: ${self:custom.stage_long.${self:provider.stage}}
@@ -139,13 +141,13 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}
       - Effect: Allow
         Action:
           - sns:Publish
@@ -174,13 +176,13 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}
       - Effect: Allow
         Action:
           - sns:Publish
@@ -224,16 +226,15 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:Scan
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.VERSION_TABLE}
     events:
       - sns:
           topicName: Watcher-VersionsUpdateReadme
           displayName: Trigger to update versions section of metadata repo README file
-
 
   pullRequestsPullRequest:
     handler: lambdas/pull_requests.pull_request
@@ -252,13 +253,13 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:PutItem
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}
       - Effect: Allow
         Action:
           - sns:Publish
@@ -284,16 +285,15 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:Scan
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}
     events:
       - sns:
           topicName: Watcher-PullRequestsUpdateReadme
           displayName: Trigger to update pull request section of metadata repo README file
-
 
   pullRequestsSync:
     handler: lambdas/pull_requests.sync
@@ -312,7 +312,7 @@ functions:
           - ssm:GetParameter
         Resource:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
-      - Effect: 'Allow'
+      - Effect: Allow
         Action:
           - dynamodb:Scan
           - dynamodb:BatchWriteItem
@@ -320,7 +320,7 @@ functions:
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
         Resource:
-          - '${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}'
+          - ${self:custom.dynamodbArnPrefix}/${self:provider.environment.PULL_REQUEST_TABLE}
       - Effect: Allow
         Action:
           - sns:Publish

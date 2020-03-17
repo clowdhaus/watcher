@@ -17,15 +17,16 @@ from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEventType
+from lambdas.log import log
 
 #: DynamoDB table for pull requests
 PR_TABLE = os.environ.get('PULL_REQUEST_TABLE')
 #: Datetime format
 DATE_FORMAT = '%Y-%m-%d'
 #: Name of repository where metadata will be displayed
-METADATA_REPO = 'clowdhaus/metadata'
-#: GitHub Organization to collect version information from
-ORGANIZATION = 'clowdhaus'
+METADATA_REPO = os.environ.get('GITHUB_METADATA_REPO')
+#: GitHub Organization to collect data from
+ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
 
 
 def _get_pull_request_data(payload: Dict) -> Dict:
@@ -59,7 +60,6 @@ def _get_repository_pull_requests(repo: Repository) -> List[Dict]:
     """
     repo_full_name = repo.full_name
     prs = repo.get_pulls(state='open', sort='created')
-
     return [
         {
             'repository': repo_full_name,
@@ -101,7 +101,7 @@ def pull_request(event: Dict, _c: Dict):
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.pull_request.value)
-    print(json.dumps(msg))
+    log.info(msg)
 
     #: Extract data and update DynamoDB table
     action = msg.get('action')

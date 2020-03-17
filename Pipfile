@@ -6,14 +6,15 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-boto3 = "~=1.12.16"
-botocore = "~=1.15.16"
+boto3 = "~=1.12.22"
+botocore = "~=1.15.22"
 black = "*"
 flake8 = "*"
 isort = "*"
 moto = "*"
 mypy = "*"
 pyflakes = "*"
+pygithub = "~=1.47"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"

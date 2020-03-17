@@ -1,6 +1,6 @@
-boto3~=1.12.16
-botocore~=1.15.16
-PyGithub~=1.46
+boto3~=1.12.22
+botocore~=1.15.22
+PyGithub~=1.47
 requests~=2.23.0
 python-json-logger
 structlog

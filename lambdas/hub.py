@@ -24,10 +24,9 @@ from lambdas.log import log
 
 REGION = os.environ.get('REGION', 'us-east-1')
 SSM_CLIENT = boto3.client('ssm', region_name=REGION)
-
-#: JSON content type
 JSON_CONTENT = {'Content-Type': 'application/json; charset=utf-8'}
 
+#: Common SNS topic base (prefix)
 SNS_TOPIC_BASE = f'{os.environ.get("SNS_ARN_PREFIX")}:Watcher'
 
 
@@ -133,7 +132,8 @@ def receive(event: Dict, _c: Dict) -> Dict:
     """
     raw = event.get('body')
     body = json.loads(raw)
-    print(json.dumps(body))
+    log.info(body)
+
     #: Add in webhook "name"
     body.update({'X-GitHub-Event': event.get('headers', {}).get('X-GitHub-Event')})
 

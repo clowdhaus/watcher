@@ -16,6 +16,8 @@ from pythonjsonlogger import jsonlogger
 # Setup jsonlogger to print JSON
 json_handler = logging.StreamHandler(sys.stdout)
 json_handler.setFormatter(jsonlogger.JsonFormatter())
+root_logger = logging.getLogger()
+root_logger.addHandler(json_handler)
 
 logging.basicConfig(
     format="%(message)s", handlers=[json_handler], level=logging.INFO,

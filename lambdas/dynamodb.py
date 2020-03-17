@@ -93,7 +93,7 @@ def put_item(item: Dict, table: str, **kwargs) -> Dict:
 
 def update_item(key: Dict, expression: str, attr_values: Dict, table: str, **kwargs) -> Dict:
     """
-    Update `item` in `table`.
+    Update item stored under `key` in `table`.
 
     :param key: primary key
     :param expression: defines one or more attributes to be updated

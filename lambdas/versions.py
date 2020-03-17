@@ -17,13 +17,14 @@ from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEventType
+from lambdas.log import log
 
 #: DynamoDB table for versions
 VERSION_TABLE = os.environ.get('VERSION_TABLE')
 #: Name of repository where metadata will be displayed
-METADATA_REPO = 'clowdhaus/metadata'
-#: GitHub Organization to collect version information from
-ORGANIZATION = 'clowdhaus'
+METADATA_REPO = os.environ.get('GITHUB_METADATA_REPO')
+#: GitHub Organization to collect data from
+ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
 
 
 def _get_tag_data(payload: Dict, repo: Optional[Repository] = None) -> Dict:
@@ -76,7 +77,7 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
-    print(json.dumps(msg))
+    log.info(msg)
 
     #: Extract data and update DynamoDB table
     data = _get_tag_data(payload=msg)
@@ -95,7 +96,7 @@ def create_release(event: Dict, _c: Dict) -> Dict:
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
-    print(json.dumps(msg))
+    log.info(msg)
 
     if msg.get('X-GitHub-Event') == 'create':
         updated_repo = hub.get_github_repo(msg.get('repository', {}).get('full_name'))
