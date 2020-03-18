@@ -1,0 +1,3 @@
+account_id: 028920223318                  # The AWS account ID where watcher will be deployed/provisioned
+GITHUB_ORGANIZATION: clowdhaus            # The GitHub organization that watcher will watching
+GITHUB_METADATA_REPO: clowdhaus/metadata  # The GitHub repository where watcher will report its findings

@@ -6,7 +6,7 @@ custom:
   stage_long:
     dev: development
     prod: production
-  account_id: ${opt:account_id, '028920223318'}
+  account_id: ${file(variables.yml):account_id}
   lambdaArnPrefix: arn:aws:lambda:${self:provider.region}:${self:custom.account_id}:function:${self:service}-${self:provider.stage}
   snsArnPrefix: arn:aws:sns:${self:provider.region}:${self:custom.account_id}
   dynamodbArnPrefix: arn:aws:dynamodb:${self:provider.region}:${self:custom.account_id}:table
@@ -33,8 +33,8 @@ provider:
     PYTHONWARNINGS: ignore # https://github.com/jmespath/jmespath.py/issues/187
     PULL_REQUEST_TABLE: watcher-pull-requests
     VERSION_TABLE: watcher-versions
-    GITHUB_ORGANIZATION: clowdhaus
-    GITHUB_METADATA_REPO: clowdhaus/metadata
+    GITHUB_ORGANIZATION: ${file(variables.yml):GITHUB_ORGANIZATION}
+    GITHUB_METADATA_REPO: ${file(variables.yml):GITHUB_METADATA_REPO}
   tags:
     service: watcher
     environment: ${self:custom.stage_long.${self:provider.stage}}
