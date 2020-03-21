@@ -125,7 +125,7 @@ def update_readme(event: Dict, _c: Dict):
     file = meta_repo.get_contents(readme)
 
     #: Output is rendered as markdown table
-    header = '| Repository | PR | Branch | User | Days Old |\n| --- | --- | --- | --- | --- |\n'
+    header = '| Repository | PR | Branch | User | Age (days) |\n| --- | --- | --- | --- | --- |\n'
     rows = ''
 
     #: Create a row per record/pull request
