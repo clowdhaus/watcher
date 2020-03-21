@@ -33,5 +33,12 @@ jobs:
           pip install pipenv
           yarn
           make generate_artifacts
-      - name: Serverless deploy
+      - name: Deploy watcher core lambda layer only if changes made to layer
+        run: |
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          LATEST_COMMIT_IN_PATH=$(git log -1 --format=format:%H --full-diff layers/core layer_core.yml)
+          if [ $LATEST_COMMIT == $LATEST_COMMIT_IN_PATH ]; then
+            yarn run sls deploy -c layer_core.yml
+          fi
+      - name: Deploy watcher service to AWS
         run: yarn run sls deploy

@@ -1,0 +1,40 @@
+service: watcherLayerCore
+
+frameworkVersion: '>=1.65.0'
+
+custom:
+  stage_long:
+    dev: development
+    prod: production
+  account_id: ${file(variables.yml):account_id}
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  deploymentBucket:
+    name: serverless-${self:custom.account_id}-${self:provider.region}
+    serverSideEncryption: AES256
+  tags:
+    service: watcher
+    environment: ${self:custom.stage_long.${self:provider.stage}}
+    createdby: serverless
+    repository: https://github.com/clowdhaus/watcher
+
+layers:
+  watcherCore:
+    package:
+      artifact: layers/core/core.zip
+    description: Lambda layer containing core python libraries
+    compatibleRuntimes:
+      - python3.8
+    retain: false
+
+resources:
+  Outputs:
+    WatcherCoreLayerExport:
+      Value:
+        Ref: WatcherCoreLambdaLayer
+      Export:
+        Name: WatcherCoreLambdaLayer

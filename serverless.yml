@@ -10,6 +10,7 @@ custom:
   lambdaArnPrefix: arn:aws:lambda:${self:provider.region}:${self:custom.account_id}:function:${self:service}-${self:provider.stage}
   snsArnPrefix: arn:aws:sns:${self:provider.region}:${self:custom.account_id}
   dynamodbArnPrefix: arn:aws:dynamodb:${self:provider.region}:${self:custom.account_id}:table
+  layer_core: ${cf:watcherLayerCore-dev.WatcherCoreLayerExport}
   pythonRequirements:
     usePoetry: false
     dockerizePip: true
@@ -19,7 +20,7 @@ provider:
   runtime: python3.8
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-  timeout: 5
+  timeout: 30
   memorySize: 256
   logRetentionInDays: 30
   deploymentBucket:
@@ -47,15 +48,6 @@ provider:
         - xray:PutTelemetryRecords
       Resource:
         - '*'
-
-layers:
-  watcherCore:
-    package:
-      artifact: layers/core/core.zip
-    description: Lambda layer containing core python libraries
-    compatibleRuntimes:
-      - python3.8
-    retain: false
 
 resources:
   Resources:
@@ -104,7 +96,8 @@ functions:
   hubReceive:
     handler: lambdas/hub.receive
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
+      - ${self:custom.layer_core}
+    timeout: 15
     description: Receive and validate GitHub webhooks before passing along payload
     iamRoleStatementsInherit: true
     iamRoleStatementsName: ${self:service}-${self:provider.stage}-hub-receive
@@ -127,8 +120,8 @@ functions:
   versionsSync:
     handler: lambdas/versions.sync
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
-    timeout: 600
+      - ${self:custom.layer_core}
+    timeout: 300
     memorySize: 512
     description: Sync all repository versions
     environment:
@@ -162,9 +155,7 @@ functions:
   versionsNewTag:
     handler: lambdas/versions.new_tag
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
-    timeout: 60
-    memorySize: 512
+      - ${self:custom.layer_core}
     description: Responds to new tag events
     environment:
       EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-VersionsUpdateReadme
@@ -196,7 +187,7 @@ functions:
   versionsCreateRelease:
     handler: lambdas/versions.create_release
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
+      - ${self:custom.layer_core}
     description: Responds to new tag events to create a release
     iamRoleStatementsInherit: true
     iamRoleStatementsName: ${self:service}-${self:provider.stage}-versions-create-release
@@ -214,7 +205,7 @@ functions:
   versionsUpdateReadme:
     handler: lambdas/versions.update_readme
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
+      - ${self:custom.layer_core}
     timeout: 60
     memorySize: 512
     description: Updates version section of metadata repo README file
@@ -239,9 +230,7 @@ functions:
   pullRequestsPullRequest:
     handler: lambdas/pull_requests.pull_request
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
-    timeout: 60
-    memorySize: 512
+      - ${self:custom.layer_core}
     description: Responds to pull request events
     environment:
       EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-PullRequestsUpdateReadme
@@ -273,7 +262,7 @@ functions:
   pullRequestsUpdateReadme:
     handler: lambdas/pull_requests.update_readme
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
+      - ${self:custom.layer_core}
     timeout: 60
     memorySize: 512
     description: Updates pull request section of metadata repo README file
@@ -298,8 +287,8 @@ functions:
   pullRequestsSync:
     handler: lambdas/pull_requests.sync
     layers:
-      - { Ref: WatcherCoreLambdaLayer }
-    timeout: 600
+      - ${self:custom.layer_core}
+    timeout: 300
     memorySize: 512
     description: Sync all repository pull requests
     environment:
