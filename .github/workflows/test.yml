@@ -4,10 +4,24 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'lambdas/**'
+      - 'layers/**'
+      - 'serverless.yml'
+      - 'variables.yml'
+      - 'layer_core.yml'
+      - 'package.json'
 
   pull_request:
     branches:
       - master
+    paths:
+      - 'lambdas/**'
+      - 'layers/**'
+      - 'serverless.yml'
+      - 'variables.yml'
+      - 'layer_core.yml'
+      - 'package.json'
 
 jobs:
   test:
@@ -17,19 +31,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Uses Node.js 12.x
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Install yarn and dependencies
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Setup yarn cache
+        uses: actions/cache@v1
+        id: yarn-cach
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install yarn and pipenv
         run: |
           npm install -g yarn
           pip install pipenv
-          yarn
-          make setup
+
+      - name: Install node dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn
+
       - name: Run tests
-        run: yarn run test
+        run: |
+          yarn run test

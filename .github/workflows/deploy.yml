@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'lambdas/**'
+      - 'layers/**'
+      - 'serverless.yml'
+      - 'variables.yml'
+      - 'layer_core.yml'
+      - 'package.json'
 
 jobs:
   deploy:
@@ -13,32 +20,62 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 10
+
       - name: Configure AWS Credentials
         uses: clowdhaus/aws-github-actions/packages/iam_access_credentials@v0.2.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
       - name: Uses Node.js 12.x
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Install yarn and dependencies
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Setup yarn cache
+        uses: actions/cache@v1
+        id: yarn-cach
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install yarn and pipenv
         run: |
           npm install -g yarn
           pip install pipenv
-          yarn
-          make generate_artifacts
+
+      - name: Install node dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn
+
+      - name: Get changed files
+        id: getfile
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | xargs)"
+
       - name: Deploy watcher core lambda layer only if changes made to layer
         run: |
-          LATEST_COMMIT=$(git rev-parse HEAD)
-          LATEST_COMMIT_IN_PATH=$(git log -1 --format=format:%H --full-diff layers/core layer_core.yml)
-          if [ $LATEST_COMMIT == $LATEST_COMMIT_IN_PATH ]; then
+          echo ${{ steps.getfile.outputs.files }}
+          FILES=${{ steps.getfile.outputs.files }}
+          if [[ ${FILES} =~ layers/core || ${FILES} =~ layer_core.yml ]] ; then
+            make generate_artifacts
             yarn run sls deploy -c layer_core.yml
           fi
+
       - name: Deploy watcher service to AWS
-        run: yarn run sls deploy
+        run: |
+          yarn run sls deploy

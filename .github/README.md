@@ -8,12 +8,20 @@
   <img src="https://img.shields.io/badge/python-3.8-blue.svg" alt="Python 3.8">
   <img src="http://public.serverless.com/badges/v3.svg" alt="Serverless">
   <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black">
-  <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly">
-  <img src="https://snyk.io/test/github/clowdhaus/watcher/master/badge.svg" alt="Known Vulnerabilities">
+  <a href="http://commitizen.github.io/cz-cli/">
+    <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly">
+  </a>
+  <a href="https://snyk.io/test/github/clowdhaus/watcher">
+    <img src="https://snyk.io/test/github/clowdhaus/watcher/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/clowdhaus/watcher">
+  </a>
 </p>
 <p align="center">
-  <img src="https://github.com/clowdhaus/watcher/workflows/test/badge.svg?branch=master" alt="test">
-  <img src="https://github.com/clowdhaus/watcher/workflows/deploy/badge.svg?branch=master" alt="deploy">
+  <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Atest">
+    <img src="https://github.com/clowdhaus/watcher/workflows/test/badge.svg?branch=master" alt="test">
+  </a>
+  <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Adeploy">
+    <img src="https://github.com/clowdhaus/watcher/workflows/deploy/badge.svg?branch=master" alt="deploy">
+  </a>
 </p>
 
 ## Table of Contents
@@ -98,7 +106,7 @@ To deploy `watcher` into your own AWS account for your :octocat: GitHub organiza
 
 1. Pull down a local copy of the project (git clone/fork, download zipped Github source files, etc.)
 
-2. Create/specify a repository where `watcher` will report the collected data. You will need to insert the appropriate target tags in the repository's README.md file. `watcher` will inject the collected information between the strings shown below. See [EX_README.md](../EX_README.md) for an example README with the correct tags for `watcher` to target.
+2. Create/specify a repository where `watcher` will report the collected data. You will need to insert the appropriate target tags in the repository's README.md file. `watcher` will inject the collected information between the strings shown below. See [EX_README.md](EX_README.md) for an example README with the correct tags for `watcher` to target.
 
 ```markdown
 <!-- Tag Start -->
