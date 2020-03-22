@@ -1,0 +1,51 @@
+default:
+  private: true
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  default_branch:
+    name: master
+    require_code_owner_reviews: true
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: false
+  delete_branch_on_merge: true
+  enable_vulnerability_alert: true
+  enable_automated_security_fixes: true
+  labels:
+    - name: ':bug: bug'
+      color: f9690e
+      description: Unexepected result and/or unintended behavior
+    - name: ':coffee: discussion'
+      color: ffffff
+      description: General discussion on design, features, etc.
+    - name: '⛱️ feature request'
+      color: 1D76DB
+      description: Request for a new feature
+    - name: '✍🏽 help wanted'
+      color: 008672
+      description: Contribution via pull request is encouraged!
+    - name: ':interrobang: needs investigation'
+      color: 7057ff
+      description: Needs further investigation
+    - name: '🙋 question'
+      color: 4ff278
+      description: Question
+    - name: ':fire: urgent'
+      color: B60205
+      description: Extremely urgent
+    - name: ':zap: high'
+      color: d73a4a
+      description: High importance
+    - name: ':recycle: low'
+      color: fef2c0
+      description: Low importance
+    - name: ':skull: wontfix'
+      color: e4e669
+      description: Will not be implemented
+
+watcher:
+  private: false
+
+aws-github-actions:
+  private: false
