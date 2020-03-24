@@ -87,6 +87,7 @@ package:
     - '**/*'
   include:
     - lambdas/*.py
+    - lambdas/*.yml
 
 plugins:
   - serverless-iam-roles-per-function
@@ -320,3 +321,23 @@ functions:
           name: Watcher-PullRequestsSync
           description: Sync all repository pull requests
           rate: cron(0 10 ? * MON-FRI *)
+
+  repositoryUpdate:
+    handler: lambdas/repository.update
+    layers:
+      - ${self:custom.layer_core}
+    timeout: 600
+    memorySize: 512
+    description: Responds to repository events
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-repository-update
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+    events:
+      - sns:
+          topicName: Watcher-Repository
+          displayName: Contains repository event payloads

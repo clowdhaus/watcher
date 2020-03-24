@@ -7,7 +7,6 @@
 
 """
 
-import json
 import os
 import re
 from datetime import datetime
@@ -16,7 +15,7 @@ from typing import Dict, List
 from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
-from lambdas.hub import GithubEventType
+from lambdas.hub import GithubEvent
 from lambdas.log import log
 
 #: DynamoDB table for pull requests
@@ -100,7 +99,7 @@ def pull_request(event: Dict, _c: Dict):
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.pull_request.value)
+    msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.pull_request.value)
     log.info(msg)
 
     #: Extract data and update DynamoDB table
@@ -162,8 +161,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     #: Clear table first; removes deletes that weren't deleted
     dynamodb.delete_all_items(key_ids=['repository', 'pull_request'], table=PR_TABLE)
 
-    org = hub.get_github_org(ORGANIZATION)
-    for repo in org.get_repos(type='sources', sort='updated', direction='desc'):
+    for repo in hub.get_github_repos(org=ORGANIZATION):
         #: Extract data and update DynamoDB table
         for data in _get_repository_pull_requests(repo=repo):
             _update_pull_request_table(action='sync', data=data)

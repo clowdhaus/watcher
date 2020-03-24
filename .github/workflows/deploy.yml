@@ -65,13 +65,13 @@ jobs:
       - name: Get changed files
         id: getfile
         run: |
-          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.sha }} | xargs)"
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only ${{ github.event.before }} ${{ github.sha }} | xargs)"
 
       - name: Deploy watcher core lambda layer only if changes made to layer
         run: |
           echo ${{ steps.getfile.outputs.files }}
           FILES=${{ steps.getfile.outputs.files }}
-          if [[ ${FILES} =~ layers/core || ${FILES} =~ layer_core.yml ]] ; then
+          if [[ ${FILES} =~ layers || ${FILES} =~ layer_core.yml ]] ; then
             make generate_artifacts
             yarn run sls deploy -c layer_core.yml
           fi

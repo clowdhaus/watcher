@@ -7,7 +7,6 @@
 
 """
 
-import json
 import os
 import re
 from typing import Dict, Optional
@@ -16,7 +15,7 @@ from botocore.exceptions import ClientError
 from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
-from lambdas.hub import GithubEventType
+from lambdas.hub import GithubEvent
 from lambdas.log import log
 
 #: DynamoDB table for versions
@@ -76,7 +75,7 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
+    msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.tag.value)
     log.info(msg)
 
     #: Extract data and update DynamoDB table
@@ -95,7 +94,7 @@ def create_release(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    msg = sns.get_sns_msg(event=event, msg_key=GithubEventType.tag.value)
+    msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.tag.value)
     log.info(msg)
 
     if msg.get('X-GitHub-Event') == 'create':
@@ -163,8 +162,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    org = hub.get_github_org(ORGANIZATION)
-    for repo in org.get_repos(type='sources', sort='updated', direction='desc'):
+    for repo in hub.get_github_repos(org=ORGANIZATION):
         #: Extract data and update DynamoDB table
         data = _get_tag_data(payload={}, repo=repo)
         _update_version_table(data=data)

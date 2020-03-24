@@ -41,7 +41,7 @@
 | Re-sync list of latest releases on schedule                    |     ✅      |
 | Creates release automatically when new tag created             |     ✅      |
 | Create metadata repo if one is not provided nor does not exist |             |
-| Modifies new repository settings upon creation                 |             |
+| Modifies new repository settings upon creation                 |     ✅      |
 | Re-sync repository settings on demand                          |             |
 
 ## Conventions

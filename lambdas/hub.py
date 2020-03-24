@@ -13,11 +13,12 @@ import hmac
 import json
 import os
 from enum import Enum
-from typing import Dict
+from typing import Dict, List
 
 import boto3
 import github
 from github import Github
+from github.Repository import Repository
 
 from lambdas import sns
 from lambdas.log import log
@@ -30,11 +31,18 @@ JSON_CONTENT = {'Content-Type': 'application/json; charset=utf-8'}
 SNS_TOPIC_BASE = f'{os.environ.get("SNS_ARN_PREFIX")}:Watcher'
 
 
-class GithubEventType(Enum):
-    """GitHub event types"""
+class GithubEvent(Enum):
+    """Collection of GitHub events"""
 
     tag = 'tag'
     pull_request = 'pull_request'
+    repository = 'repository'
+
+    @property
+    def topic_arn(self) -> str:
+        """Returns event full SNS topic ARN"""
+        topic = ''.join([x.title() for x in self.value.split('_')])
+        return f'{SNS_TOPIC_BASE}-{topic}'
 
 
 @functools.lru_cache()
@@ -60,7 +68,7 @@ def get_github_user_token() -> str:
 
 
 @functools.lru_cache()
-def get_github_repo(repo: str) -> github.Repository:
+def get_github_repo(repo: str) -> Repository:
     """
     Get GitHub repository object.
 
@@ -70,6 +78,19 @@ def get_github_repo(repo: str) -> github.Repository:
     token = get_github_user_token()
     git = Github(token)
     return git.get_repo(repo)
+
+
+@functools.lru_cache()
+def get_github_repos(org: str) -> List[Repository]:
+    """
+    Get GitHub organization's repository objects.
+        Note: we are only getting sources as these are the ones we can control
+
+    :param repo: name of GitHub organization to retrieve repositories from
+    :returns: array of GitHub repository objects
+    """
+    org = get_github_org(org)
+    return org.get_repos(type='sources', sort='updated', direction='desc')
 
 
 @functools.lru_cache()
@@ -110,16 +131,16 @@ def _distribute_payload(payload: Dict):
     :param payload: GitHub webhook event payload body
     :returns: None
     """
-    key, topic_arn = '', ''
-    if payload.get('ref_type') == 'tag':
-        key = 'tag'
-        topic_arn = f'{SNS_TOPIC_BASE}-Tag'
-    if payload.get('pull_request'):
-        key = 'pull_request'
-        topic_arn = f'{SNS_TOPIC_BASE}-PullRequest'
+    event = None
 
-    if key and topic_arn:
-        sns.emit_sns_msg(message={key: payload}, topic_arn=topic_arn)
+    if payload.get('ref_type') == 'tag':
+        event = GithubEvent.tag
+    if payload.get('pull_request'):
+        event = GithubEvent.pull_request
+    if payload.get('repository'):
+        event = GithubEvent.repository
+    if event:
+        sns.emit_sns_msg(message={event.value: payload}, topic_arn=event.topic_arn)
 
 
 def receive(event: Dict, _c: Dict) -> Dict:
