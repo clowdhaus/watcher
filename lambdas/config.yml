@@ -6,7 +6,6 @@ default:
   default_branch:
     name: master
     require_code_owner_reviews: true
-    required_approving_review_count: 1
   allow_squash_merge: true
   allow_merge_commit: false
   allow_rebase_merge: false
@@ -45,8 +44,14 @@ default:
       color: e4e669
       description: Will not be implemented
 
+aws-github-actions:
+  private: false
+
 watcher:
   private: false
 
-aws-github-actions:
+metadata:
+  private: false
+
+.github:
   private: false

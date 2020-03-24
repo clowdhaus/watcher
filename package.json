@@ -1,10 +1,10 @@
 {
   "name": "watcher",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Watches and responds to GitHub changes via webhooks",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clowdhaus/watcher.git"
+    "url": "git@github.com:clowdhaus/watcher.git"
   },
   "keywords": [
     "github",
@@ -22,7 +22,7 @@
     "sls": "serverless",
     "test": "echo 'Need to write tests!'",
     "commit": "npx git-cz",
-    "release": "semantic-release --conventional-commits --yes"
+    "release": "semantic-release"
   },
   "dependencies": {
     "serverless": "^1.67.0",
@@ -30,6 +30,8 @@
     "serverless-python-requirements": "^5.1.0"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
     "commitizen": "^4.0.3",
     "cz-conventional-changelog": "^3.1.0",
     "semantic-release": "^17.0.4"
@@ -38,5 +40,32 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "ci": false,
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md",
+            "package.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
   }
 }

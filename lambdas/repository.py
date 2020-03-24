@@ -45,30 +45,6 @@ def _load_config(repo: str) -> Dict:
     return config['default']
 
 
-def _label_sync(repo: Repository):
-    """
-    Sync labels to settings in config file.
-
-    :param repo: Github repository object to sync labels
-    :returns: None
-    """
-    config = _load_config(repo=repo.name)
-    base_labels = [x for x in config['labels']]
-    repo_labels = [{'name': x.name, 'color': x.color, 'description': x.description} for x in repo.get_labels()]
-
-    #: smart sync only changes that are necessary (add or delete)
-    for diff in list(filterfalse(lambda x: x in base_labels, repo_labels)) + list(
-        filterfalse(lambda x: x in repo_labels, base_labels)
-    ):
-        try:
-            repo.get_label(name=diff['name']).delete()
-        except Exception:
-            print(json.dumps(diff))
-            pass
-        finally:
-            repo.create_label(name=diff['name'], color=diff['color'], description=diff['description'])
-
-
 def _repo_settings_sync(repo: Repository):
     """
     Sync repository settings to settings in config file.
@@ -96,7 +72,6 @@ def _repo_settings_sync(repo: Repository):
         repo.enable_vulnerability_alert()
     else:
         repo.disable_vulnerability_alert()
-
     if config.get('enable_automated_security_fixes'):
         repo.enable_automated_security_fixes()
     else:
@@ -119,15 +94,72 @@ def update(event: Dict, _c: Dict):
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.repository.value)
-    log.info(msg)
-    action = msg.get('action')
 
-    if action not in {'deleted', 'archived'}:
+    if msg.get('action') not in {'deleted', 'archived'}:
         full_name = msg.get('repository', {}).get('full_name')
         repo = hub.get_github_repo(repo=full_name)
-
-        # if action in {'created', 'unarchived', 'edited'}:
-        #     time.sleep(5)
-        #     _label_sync(repo=repo)
-
         _repo_settings_sync(repo=repo)
+
+
+def sync(event: Dict, _c: Dict) -> Dict:
+    """
+    Lambda function to sync all repository's settings to config settings.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    for repo in hub.get_github_repos(org=ORGANIZATION):
+        #: `sync` not a Github event but will trigger sync/update via `update()` lambda
+        sns.emit_sns_msg(
+            message={GithubEvent.repository.value: {'action': 'sync', 'repository': {'full_name': repo.full_name}}}
+        )
+
+
+def _label_sync(repo: Repository):
+    """
+    Sync labels to settings in config file.
+
+    :param repo: Github repository object to sync labels
+    :returns: None
+    """
+    config = _load_config(repo=repo.name)
+    base_labels = [x for x in config['labels']]
+    repo_labels = [{'name': x.name, 'color': x.color, 'description': x.description} for x in repo.get_labels()]
+
+    #: smart sync only changes that are necessary (add or delete)
+    for diff in list(filterfalse(lambda x: x in base_labels, repo_labels)) + list(
+        filterfalse(lambda x: x in repo_labels, base_labels)
+    ):
+        try:
+            repo.get_label(name=diff['name']).delete()
+        except Exception:
+            print(json.dumps(diff))
+            pass
+        finally:
+            repo.create_label(name=diff['name'], color=diff['color'], description=diff['description'])
+
+
+def update_labels(event: Dict, _c: Dict):
+    """
+    Lambda function to update repository labels to match config settings.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    msg = sns.get_sns_msg(event=event, msg_key='label')
+    repo = hub.get_github_repo(repo=msg.get('full_name'))
+    _label_sync(repo=repo)
+
+
+def sync_labels(event: Dict, _c: Dict) -> Dict:
+    """
+    Lambda function to sync all repository labels to config settings.
+
+    :param event: lambda expected event object
+    :param _c: lambda expected context object (unused)
+    :returns: none
+    """
+    for repo in hub.get_github_repos(org=ORGANIZATION):
+        sns.emit_sns_msg(message={'label': {'full_name': repo.full_name}})

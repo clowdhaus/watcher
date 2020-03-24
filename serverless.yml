@@ -326,8 +326,8 @@ functions:
     handler: lambdas/repository.update
     layers:
       - ${self:custom.layer_core}
-    timeout: 600
-    memorySize: 512
+    timeout: 120
+    memorySize: 256
     description: Responds to repository events
     iamRoleStatementsInherit: true
     iamRoleStatementsName: ${self:service}-${self:provider.stage}-repository-update
@@ -341,3 +341,81 @@ functions:
       - sns:
           topicName: Watcher-Repository
           displayName: Contains repository event payloads
+
+  repositorySync:
+    handler: lambdas/repository.sync
+    layers:
+      - ${self:custom.layer_core}
+    timeout: 120
+    memorySize: 256
+    description: Sync all repository's settings to config settings
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-Repository
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-repository-sync
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - '${self:custom.snsArnPrefix}:Watcher-*'
+    events:
+      - schedule:
+          name: Watcher-RepositorySync
+          description: Sync all repository settings
+          rate: cron(0 6 ? * MON-FRI *)
+
+  repositoryUpdateLabels:
+    handler: lambdas/repository.update_labels
+    layers:
+      - ${self:custom.layer_core}
+    timeout: 120
+    memorySize: 256
+    description: Update repository labels to match config settings
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-PullRequestsUpdateReadme
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-repository-update-labels
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+    events:
+      - sns:
+          topicName: Watcher-Label
+          displayName: Contains label update payloads
+
+  repositorySyncLabels:
+    handler: lambdas/repository.sync_labels
+    layers:
+      - ${self:custom.layer_core}
+    timeout: 120
+    memorySize: 256
+    description: Sync all repository labels to config settings
+    environment:
+      EMIT_MESSAGE_TOPIC: ${self:custom.snsArnPrefix}:Watcher-Label
+    iamRoleStatementsInherit: true
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-repository-sync-labels
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ssm:GetParameter
+        Resource:
+          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - '${self:custom.snsArnPrefix}:Watcher-*'
+    events:
+      - schedule:
+          name: Watcher-LabelSync
+          description: Sync all repository settings
+          rate: cron(30 7 ? * MON-FRI *)
