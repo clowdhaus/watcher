@@ -10,16 +10,14 @@
 import functools
 import json
 import os
-import time
 from itertools import filterfalse
-from typing import Dict, Optional
+from typing import Dict
 
 import yaml
 from github.Repository import Repository
 
 from lambdas import hub, sns
 from lambdas.hub import GithubEvent
-from lambdas.log import log
 
 #: GitHub Organization to collect data from
 ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
@@ -135,7 +133,6 @@ def _label_sync(repo: Repository):
             repo.get_label(name=diff['name']).delete()
         except Exception:
             print(json.dumps(diff))
-            pass
         finally:
             repo.create_label(name=diff['name'], color=diff['color'], description=diff['description'])
 

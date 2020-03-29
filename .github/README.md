@@ -11,9 +11,6 @@
   <a href="http://commitizen.github.io/cz-cli/">
     <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly">
   </a>
-  <a href="https://snyk.io/test/github/clowdhaus/watcher">
-    <img src="https://snyk.io/test/github/clowdhaus/watcher/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/clowdhaus/watcher">
-  </a>
 </p>
 <p align="center">
   <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Atest">
@@ -22,6 +19,10 @@
   <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Adeploy">
     <img src="https://github.com/clowdhaus/watcher/workflows/deploy/badge.svg?branch=master" alt="deploy">
   </a>
+  <a href="https://snyk.io/test/github/clowdhaus/watcher">
+    <img src="https://snyk.io/test/github/clowdhaus/watcher/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/clowdhaus/watcher">
+  </a>
+  <a href="https://lgtm.com/projects/g/clowdhaus/watcher/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/clowdhaus/watcher.svg?logo=lgtm&logoWidth=18"/></a>
 </p>
 
 ## Table of Contents
