@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/clowdhaus/watcher/compare/v1.0.0...v1.0.1) (2020-03-29)
+
+
+### Bug Fixes
+
+* remove unecessary imports, update library dependencies ([bdc68f6](https://github.com/clowdhaus/watcher/commit/bdc68f61759f07971a0d788d97155130430951ce))
+
 # 1.0.0 (2020-03-25)
 
 

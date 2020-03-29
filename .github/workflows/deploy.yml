@@ -69,8 +69,7 @@ jobs:
 
       - name: Deploy watcher core lambda layer only if changes made to layer
         run: |
-          echo ${{ steps.getfile.outputs.files }}
-          FILES=${{ steps.getfile.outputs.files }}
+          FILES='${{ steps.getfile.outputs.files }}'
           if [[ ${FILES} =~ layers || ${FILES} =~ layer_core.yml ]] ; then
             make generate_artifacts
             yarn run sls deploy -c layer_core.yml
