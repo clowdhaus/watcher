@@ -7,9 +7,7 @@ on:
     paths:
       - 'lambdas/**'
       - 'layers/**'
-      - 'serverless.yml'
-      - 'variables.yml'
-      - 'layer_core.yml'
+      - '**.yml'
       - 'package.json'
 
 jobs:
@@ -69,8 +67,7 @@ jobs:
 
       - name: Deploy watcher core lambda layer only if changes made to layer
         run: |
-          FILES='${{ steps.getfile.outputs.files }}'
-          if [[ ${FILES} =~ layers || ${FILES} =~ layer_core.yml ]] ; then
+          if [[ '${{ steps.getfile.outputs.files }}' =~ layers || '${{ steps.getfile.outputs.files }}' =~ layer_core.yml ]] ; then
             make generate_artifacts
             yarn run sls deploy -c layer_core.yml
           fi

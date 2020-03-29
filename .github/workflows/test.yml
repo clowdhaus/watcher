@@ -7,10 +7,7 @@ on:
     paths:
       - 'lambdas/**'
       - 'layers/**'
-      - 'serverless.yml'
-      - 'variables.yml'
-      - 'layer_core.yml'
-      - 'package.json'
+      - '**.yml'
 
   pull_request:
     branches:
