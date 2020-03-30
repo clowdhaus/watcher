@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/clowdhaus/watcher/compare/v1.0.1...v1.0.2) (2020-03-30)
+
+
+### Bug Fixes
+
+* **hub.py:** correct order of event precedence logic to capture correct event type ([cf1b6da](https://github.com/clowdhaus/watcher/commit/cf1b6da5c43d40e0376eb8c3cbc02eb57d36ed3e))
+
 ## [1.0.1](https://github.com/clowdhaus/watcher/compare/v1.0.0...v1.0.1) (2020-03-29)
 
 
