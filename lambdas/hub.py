@@ -133,12 +133,13 @@ def _distribute_payload(payload: Dict):
     """
     event = None
 
-    if payload.get('ref_type') == 'tag':
-        event = GithubEvent.tag
-    if payload.get('pull_request'):
-        event = GithubEvent.pull_request
     if payload.get('repository'):
         event = GithubEvent.repository
+    if payload.get('ref_type') == 'tag':
+            event = GithubEvent.tag
+    if payload.get('pull_request') and payload.get('number'):
+        event = GithubEvent.pull_request
+
     if event:
         sns.emit_sns_msg(message={event.value: payload}, topic_arn=event.topic_arn)
 
