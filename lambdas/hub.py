@@ -136,7 +136,7 @@ def _distribute_payload(payload: Dict):
     if payload.get('repository'):
         event = GithubEvent.repository
     if payload.get('ref_type') == 'tag':
-            event = GithubEvent.tag
+        event = GithubEvent.tag
     if payload.get('pull_request') and payload.get('number'):
         event = GithubEvent.pull_request
 
