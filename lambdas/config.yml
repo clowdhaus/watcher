@@ -47,6 +47,9 @@ default:
 aws-github-actions:
   private: false
 
+compress:
+  private: false
+
 watcher:
   private: false
 
