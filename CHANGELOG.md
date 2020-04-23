@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/clowdhaus/watcher/compare/v1.0.2...v1.1.0) (2020-04-23)
+
+
+### Features
+
+* make `compress` project open source and available to the public ([df2fd29](https://github.com/clowdhaus/watcher/commit/df2fd29d06ffe3895c10a672e1e1063ea4a98fb9))
+
 ## [1.0.2](https://github.com/clowdhaus/watcher/compare/v1.0.1...v1.0.2) (2020-03-30)
 
 
