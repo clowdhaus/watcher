@@ -6,8 +6,8 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-boto3 = "~=1.12.36"
-botocore = "~=1.15.36"
+boto3 = "~=1.12.45"
+botocore = "~=1.15.45"
 black = "*"
 flake8 = "*"
 isort = "*"
