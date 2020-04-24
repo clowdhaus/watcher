@@ -158,7 +158,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
-    #: Clear table first; removes deletes that weren't deleted
+    #: Purge table first before re-populating
     dynamodb.delete_all_items(key_ids=['repository', 'pull_request'], table=PR_TABLE)
 
     for repo in hub.get_github_repos(org=ORGANIZATION):

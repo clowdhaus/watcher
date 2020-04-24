@@ -162,6 +162,9 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    #: Purge table first before re-populating
+    dynamodb.delete_all_items(key_ids=['repository'], table=VERSION_TABLE)
+
     for repo in hub.get_github_repos(org=ORGANIZATION):
         #: Extract data and update DynamoDB table
         data = _get_tag_data(payload={}, repo=repo)

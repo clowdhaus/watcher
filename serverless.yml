@@ -137,6 +137,8 @@ functions:
           - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_user_token
       - Effect: Allow
         Action:
+          - dynamodb:Scan
+          - dynamodb:BatchWriteItem
           - dynamodb:PutItem
           - dynamodb:DeleteItem
           - dynamodb:UpdateItem
