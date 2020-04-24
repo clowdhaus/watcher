@@ -57,7 +57,7 @@ jobs:
           python -m pip install pipenv
 
       - name: Install node dependencies
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        # if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
 
       - name: Get changed files
