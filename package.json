@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/clowdhaus/watcher/#readme",
   "scripts": {
-    "sls": "serverless",
+    "sls": "./node_modules/.bin/serverless",
     "test": "echo 'Need to write tests!'",
     "commit": "npx git-cz",
     "release": "semantic-release",
