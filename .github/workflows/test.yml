@@ -45,22 +45,21 @@ jobs:
 
       - name: Setup yarn cache
         uses: actions/cache@v1
-        id: yarn-cach
+        id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install yarn and pipenv
+      - name: Install pipenv
         run: |
-          npm install -g yarn
-          pip install pipenv
+          python -m pip install --upgrade pip
+          python -m pip install pipenv
 
       - name: Install node dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
 
       - name: Run tests
-        run: |
-          yarn run test
+        run: yarn run test
