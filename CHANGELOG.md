@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/clowdhaus/watcher/compare/v1.1.0...v1.1.1) (2020-04-24)
+
+
+### Bug Fixes
+
+* **versions.py:** purge version table before updating during sync operation ([156e937](https://github.com/clowdhaus/watcher/commit/156e937d6820a8535e0c39bddab1d25315d5d928))
+
 # [1.1.0](https://github.com/clowdhaus/watcher/compare/v1.0.2...v1.1.0) (2020-04-23)
 
 
