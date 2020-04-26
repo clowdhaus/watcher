@@ -17,11 +17,12 @@ from typing import Dict, List
 
 import boto3
 import github
+from aws_lambda_powertools.logging import Logger
+from aws_lambda_powertools.tracing import Tracer
 from github import Github
 from github.Repository import Repository
 
 from lambdas import sns
-from lambdas.log import log
 
 REGION = os.environ.get('REGION', 'us-east-1')
 SSM_CLIENT = boto3.client('ssm', region_name=REGION)
@@ -29,6 +30,10 @@ JSON_CONTENT = {'Content-Type': 'application/json; charset=utf-8'}
 
 #: Common SNS topic base (prefix)
 SNS_TOPIC_BASE = f'{os.environ.get("SNS_ARN_PREFIX")}:Watcher'
+
+#: Tracing via X-Ray
+tracer = Tracer()
+logger = Logger()
 
 
 class GithubEvent(Enum):
@@ -119,7 +124,7 @@ def _valid_signature(headers: Dict, body: str) -> bool:
     computed_signature = hmac.new(signing_secret, body.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
 
     if not hmac.compare_digest(signature_parts[1], computed_signature):
-        log.error('GitHub signature does not match', expected=signature_parts[1], computed=computed_signature)
+        logger.error({'operation': '_valid_signature', 'expected': signature_parts[1], 'computed': computed_signature})
         return False
     return True
 
@@ -144,6 +149,8 @@ def _distribute_payload(payload: Dict):
         sns.emit_sns_msg(message={event.value: payload}, topic_arn=event.topic_arn)
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def receive(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to receive and validate GitHub webhooks before passing along payload.
@@ -154,7 +161,7 @@ def receive(event: Dict, _c: Dict) -> Dict:
     """
     raw = event.get('body')
     body = json.loads(raw)
-    log.info(body)
+    logger.info('Webhook received')
 
     #: Add in webhook "name"
     body.update({'X-GitHub-Event': event.get('headers', {}).get('X-GitHub-Event')})
@@ -166,8 +173,10 @@ def receive(event: Dict, _c: Dict) -> Dict:
             'body': 'GitHub signature verified',
             'headers': {**JSON_CONTENT, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True},
         }
-    return {
+    err = {
         'statusCode': 403,
         'body': 'GitHub signature does not match',
         'headers': {**JSON_CONTENT},
     }
+    logger.error(err)
+    return err

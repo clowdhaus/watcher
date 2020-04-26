@@ -12,9 +12,8 @@ import os
 from typing import Dict, Optional, Union
 
 import boto3
+from aws_lambda_powertools.logging import Logger
 from botocore.exceptions import ClientError
-
-from lambdas.log import log
 
 #: Base SNS message topic ARN
 SNS_ARN_PREFIX = os.environ.get('SNS_ARN_PREFIX')
@@ -23,6 +22,8 @@ SNS_ARN_PREFIX = os.environ.get('SNS_ARN_PREFIX')
 EMIT_MESSAGE_TOPIC = os.environ.get('EMIT_MESSAGE_TOPIC')
 REGION = os.environ.get('REGION', 'us-east-1')
 SNS_CLIENT = boto3.client('sns', region_name=REGION)
+
+logger = Logger()
 
 
 def emit_sns_msg(message: Union[str, Dict], topic_arn: str = EMIT_MESSAGE_TOPIC, **kwargs):
@@ -37,7 +38,7 @@ def emit_sns_msg(message: Union[str, Dict], topic_arn: str = EMIT_MESSAGE_TOPIC,
     try:
         SNS_CLIENT.publish(Message=msg, TopicArn=topic_arn, **kwargs)
     except ClientError as err:
-        log.error(f'Unable to publish SNS message {message} to topic `{topic_arn}`', error=err)
+        logger.error(f'Unable to publish SNS message {message} to topic `{topic_arn}`', error=err)
         raise
 
 
@@ -53,5 +54,5 @@ def get_sns_msg(event: Dict, msg_key: str) -> Optional[Dict]:
     try:
         return event_msg[msg_key]
     except KeyError:
-        log.error(f'Topic message key `{msg_key}` not found', event_message=event_msg)
+        logger.error({'operation': 'get_sns_msg', 'event_message': event_msg})
         raise

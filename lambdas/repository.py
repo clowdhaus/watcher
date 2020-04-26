@@ -14,6 +14,8 @@ from itertools import filterfalse
 from typing import Dict
 
 import yaml
+from aws_lambda_powertools.logging import Logger
+from aws_lambda_powertools.tracing import Tracer
 from github.Repository import Repository
 
 from lambdas import hub, sns
@@ -22,8 +24,9 @@ from lambdas.hub import GithubEvent
 #: GitHub Organization to collect data from
 ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
 
-# - Sync repository labels (delete those not in config, add those in config not in repo)
-# - Repository settings (porjects, private, squash merge, etc.)
+#: Tracing via X-Ray
+tracer = Tracer()
+logger = Logger()
 
 
 @functools.lru_cache()
@@ -83,6 +86,8 @@ def _repo_settings_sync(repo: Repository):
     )
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def update(event: Dict, _c: Dict):
     """
     Lambda function that responds to repository events.
@@ -92,6 +97,7 @@ def update(event: Dict, _c: Dict):
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.repository.value)
+    logger.info({'operation': 'update', 'sns_payload': msg})
 
     if msg.get('action') not in {'deleted', 'archived'}:
         full_name = msg.get('repository', {}).get('full_name')
@@ -99,6 +105,8 @@ def update(event: Dict, _c: Dict):
         _repo_settings_sync(repo=repo)
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def sync(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository's settings to config settings.
@@ -107,6 +115,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'sync'})
     for repo in hub.get_github_repos(org=ORGANIZATION):
         #: `sync` not a Github event but will trigger sync/update via `update()` lambda
         sns.emit_sns_msg(
@@ -137,6 +146,8 @@ def _label_sync(repo: Repository):
             repo.create_label(name=diff['name'], color=diff['color'], description=diff['description'])
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def update_labels(event: Dict, _c: Dict):
     """
     Lambda function to update repository labels to match config settings.
@@ -145,11 +156,14 @@ def update_labels(event: Dict, _c: Dict):
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'update_labels'})
     msg = sns.get_sns_msg(event=event, msg_key='label')
     repo = hub.get_github_repo(repo=msg.get('full_name'))
     _label_sync(repo=repo)
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def sync_labels(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository labels to config settings.
@@ -158,5 +172,6 @@ def sync_labels(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'sync_labels'})
     for repo in hub.get_github_repos(org=ORGANIZATION):
         sns.emit_sns_msg(message={'label': {'full_name': repo.full_name}})

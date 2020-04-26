@@ -29,7 +29,7 @@
     "serverless": "^1.68.0",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-python-requirements": "^5.1.0",
-    "snyk": "^1.310.0"
+    "snyk": "^1.311.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",

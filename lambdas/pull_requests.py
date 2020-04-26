@@ -12,11 +12,12 @@ import re
 from datetime import datetime
 from typing import Dict, List
 
+from aws_lambda_powertools.logging import Logger
+from aws_lambda_powertools.tracing import Tracer
 from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEvent
-from lambdas.log import log
 
 #: DynamoDB table for pull requests
 PR_TABLE = os.environ.get('PULL_REQUEST_TABLE')
@@ -26,6 +27,10 @@ DATE_FORMAT = '%Y-%m-%d'
 METADATA_REPO = os.environ.get('GITHUB_METADATA_REPO')
 #: GitHub Organization to collect data from
 ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
+
+#: Tracing via X-Ray
+tracer = Tracer()
+logger = Logger()
 
 
 def _get_pull_request_data(payload: Dict) -> Dict:
@@ -91,6 +96,8 @@ def _update_pull_request_table(action: str, data: dict):
         dynamodb.put_item(item={**data, 'age': age}, table=PR_TABLE)
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def pull_request(event: Dict, _c: Dict):
     """
     Lambda function that responds to pull request events.
@@ -100,7 +107,7 @@ def pull_request(event: Dict, _c: Dict):
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.pull_request.value)
-    log.info(msg)
+    logger.info({'operation': 'pull_request', 'sns_payload': msg})
 
     #: Extract data and update DynamoDB table
     action = msg.get('action')
@@ -111,6 +118,8 @@ def pull_request(event: Dict, _c: Dict):
     sns.emit_sns_msg(message={})
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def update_readme(event: Dict, _c: Dict):
     """
     Lambda function to update pull request section of metadata repo README file.
@@ -119,6 +128,7 @@ def update_readme(event: Dict, _c: Dict):
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'update_readme'})
     readme = 'README.md'
     meta_repo = hub.get_github_repo(METADATA_REPO)
     file = meta_repo.get_contents(readme)
@@ -150,6 +160,8 @@ def update_readme(event: Dict, _c: Dict):
     )
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def sync(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository pull requests.
@@ -158,6 +170,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'sync'})
     #: Purge table first before re-populating
     dynamodb.delete_all_items(key_ids=['repository', 'pull_request'], table=PR_TABLE)
 

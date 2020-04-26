@@ -11,12 +11,13 @@ import os
 import re
 from typing import Dict, Optional
 
+from aws_lambda_powertools.logging import Logger
+from aws_lambda_powertools.tracing import Tracer
 from botocore.exceptions import ClientError
 from github.Repository import Repository
 
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEvent
-from lambdas.log import log
 
 #: DynamoDB table for versions
 VERSION_TABLE = os.environ.get('VERSION_TABLE')
@@ -24,6 +25,10 @@ VERSION_TABLE = os.environ.get('VERSION_TABLE')
 METADATA_REPO = os.environ.get('GITHUB_METADATA_REPO')
 #: GitHub Organization to collect data from
 ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')
+
+#: Tracing via X-Ray
+tracer = Tracer()
+logger = Logger()
 
 
 def _get_tag_data(payload: Dict, repo: Optional[Repository] = None) -> Dict:
@@ -67,6 +72,8 @@ def _update_version_table(data: dict):
             pass
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def new_tag(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function that responds to new tag events.
@@ -76,7 +83,7 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.tag.value)
-    log.info(msg)
+    logger.info({'operation': 'new_tag', 'sns_payload': msg})
 
     #: Extract data and update DynamoDB table
     data = _get_tag_data(payload=msg)
@@ -86,6 +93,8 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
     sns.emit_sns_msg(message={})
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def create_release(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function that responds to new tag events to create a release.
@@ -95,7 +104,7 @@ def create_release(event: Dict, _c: Dict) -> Dict:
     :returns: none
     """
     msg = sns.get_sns_msg(event=event, msg_key=GithubEvent.tag.value)
-    log.info(msg)
+    logger.info({'operation': 'create_release', 'sns_payload': msg})
 
     if msg.get('X-GitHub-Event') == 'create':
         updated_repo = hub.get_github_repo(msg.get('repository', {}).get('full_name'))
@@ -110,6 +119,8 @@ def create_release(event: Dict, _c: Dict) -> Dict:
         )
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def update_readme(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to update versions section of metadata repo README file.
@@ -118,6 +129,7 @@ def update_readme(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'update_readme'})
     readme = 'README.md'
     meta_repo = hub.get_github_repo(METADATA_REPO)
     file = meta_repo.get_contents(readme)
@@ -154,6 +166,8 @@ def update_readme(event: Dict, _c: Dict) -> Dict:
     meta_repo.update_file(path=readme, message='Tag section updated in README', content=final_content, sha=file.sha)
 
 
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context
 def sync(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository versions.
@@ -162,6 +176,7 @@ def sync(event: Dict, _c: Dict) -> Dict:
     :param _c: lambda expected context object (unused)
     :returns: none
     """
+    logger.info({'operation': 'sync'})
     #: Purge table first before re-populating
     dynamodb.delete_all_items(key_ids=['repository'], table=VERSION_TABLE)
 
