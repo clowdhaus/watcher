@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/clowdhaus/watcher/compare/v1.1.1...v1.2.0) (2020-04-26)
+
+
+### Features
+
+* replace custom logging with aws-lambda-powertools logging and tracing ([c753c97](https://github.com/clowdhaus/watcher/commit/c753c97a1bd712ccc473a7ce035315d7d6ca4e02))
+
 ## [1.1.1](https://github.com/clowdhaus/watcher/compare/v1.1.0...v1.1.1) (2020-04-24)
 
 
