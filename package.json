@@ -21,20 +21,17 @@
   "scripts": {
     "test": "echo 'Need to write tests!'",
     "commit": "npx git-cz",
-    "release": "semantic-release",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "release": "semantic-release"
   },
   "dependencies": {
-    "serverless": "^1.68.0",
+    "serverless": "^1.69.0",
     "serverless-iam-roles-per-function": "^2.0.2",
-    "serverless-python-requirements": "^5.1.0",
-    "snyk": "^1.311.0"
+    "serverless-python-requirements": "^5.1.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/git": "^9.0.0",
-    "commitizen": "^4.0.4",
+    "commitizen": "^4.0.5",
     "cz-conventional-changelog": "^3.1.0",
     "semantic-release": "^17.0.7"
   },
@@ -69,6 +66,5 @@
         }
       ]
     ]
-  },
-  "snyk": true
+  }
 }

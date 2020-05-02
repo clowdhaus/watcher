@@ -25,7 +25,7 @@ coverage: test cover clean ## Execute unit tests and  generate test coverage rep
 .PHONY: clean
 clean: ## Remove generated development artifacts to start with a clean slate to develop
 	@find . | grep -E "(__pycache__|\.pyc|\.pyo$$|\.pytest_cache|\.coverage.$$|core.zip)" | xargs rm -rf
-	rm -rf node_modules Pipfile.lock yarn.lock
+	rm -rf node_modules Pipfile.lock yarn.lock .serverless
 	pipenv --rm
 
 .PHONY: lint
