@@ -24,7 +24,7 @@
     "release": "semantic-release"
   },
   "dependencies": {
-    "serverless": "^1.69.0",
+    "serverless": "^1.70.0",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-python-requirements": "^5.1.0"
   },
