@@ -24,7 +24,7 @@
     "release": "semantic-release"
   },
   "dependencies": {
-    "serverless": "^1.70.0",
+    "serverless": "^1.73.1",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-python-requirements": "^5.1.0"
   },
@@ -33,7 +33,7 @@
     "@semantic-release/git": "^9.0.0",
     "commitizen": "^4.1.2",
     "cz-conventional-changelog": "^3.2.0",
-    "semantic-release": "^17.0.7"
+    "semantic-release": "^17.0.8"
   },
   "config": {
     "commitizen": {

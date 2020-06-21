@@ -1,6 +1,6 @@
 service: watcher
 
-frameworkVersion: '>=1.67.0'
+frameworkVersion: '>=1.73.0'
 
 custom:
   stage_long:
