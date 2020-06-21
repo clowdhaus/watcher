@@ -1,6 +1,6 @@
 service: watcherLayerCore
 
-frameworkVersion: '>=1.65.0'
+frameworkVersion: '>=1.73.0'
 
 custom:
   stage_long:
