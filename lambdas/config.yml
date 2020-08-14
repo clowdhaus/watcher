@@ -50,6 +50,9 @@ aws-github-actions:
 compress:
   private: false
 
+dogged-params:
+  private: false
+
 watcher:
   private: false
 
