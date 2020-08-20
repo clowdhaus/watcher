@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/clowdhaus/watcher/compare/v1.2.0...v1.3.0) (2020-08-20)
+
+
+### Features
+
+* add `chunky` to public repos whitelist ([4797a0b](https://github.com/clowdhaus/watcher/commit/4797a0b80cfee06a3c96112eb61f48f1c087333c))
+* add dogged-params to public ([dc638c2](https://github.com/clowdhaus/watcher/commit/dc638c2e917e2d6041f313cde38e167c45e9c627))
+
 # [1.2.0](https://github.com/clowdhaus/watcher/compare/v1.1.1...v1.2.0) (2020-04-26)
 
 
