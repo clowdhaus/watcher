@@ -47,6 +47,9 @@ default:
 aws-github-actions:
   private: false
 
+chunky:
+  private: false
+
 compress:
   private: false
 
