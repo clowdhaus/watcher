@@ -44,23 +44,19 @@ default:
       color: e4e669
       description: Will not be implemented
 
+actions:
+  private: false
 aws-github-actions:
   private: false
-
 chunky:
   private: false
-
 compress:
   private: false
-
 dogged-params:
   private: false
-
 watcher:
   private: false
-
 metadata:
   private: false
-
 .github:
   private: false
