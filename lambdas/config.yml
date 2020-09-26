@@ -52,8 +52,6 @@ chunky:
   private: false
 compress:
   private: false
-dogged-params:
-  private: false
 watcher:
   private: false
 metadata:
