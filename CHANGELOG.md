@@ -1,3 +1,16 @@
+# [1.4.0](https://github.com/clowdhaus/watcher/compare/v1.3.0...v1.4.0) (2020-10-14)
+
+
+### Bug Fixes
+
+* roll back serverless upgrade to 2.4.0 due to breaking IAM role plugin ([41f5e06](https://github.com/clowdhaus/watcher/commit/41f5e064fd4a217cb1a0ea1136a50412026c9967))
+
+
+### Features
+
+* initial public release of `actions` project ([25cdf35](https://github.com/clowdhaus/watcher/commit/25cdf35342c7f01637685224a6e954d6457e3f9d))
+* open source `terraform-aws-datadog-forwarders` module ([bb3697d](https://github.com/clowdhaus/watcher/commit/bb3697d7f743e83dff075c2967d750ce0b52c9ba))
+
 # [1.3.0](https://github.com/clowdhaus/watcher/compare/v1.2.0...v1.3.0) (2020-08-20)
 
 
