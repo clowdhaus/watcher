@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-aws-lambda-powertools = "~=1.5.0"
-boto3 = "~=1.15.2"
-botocore = "~=1.18.2"
+aws-lambda-powertools = "~=1.6.1"
+boto3 = "~=1.15.16"
+botocore = "~=1.18.16"
 black = "*"
 flake8 = "*"
 isort = "*"
