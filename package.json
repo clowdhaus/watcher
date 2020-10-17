@@ -28,7 +28,7 @@
     "serverless": "2.4.0",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-python-requirements": "^5.1.0",
-    "yargs-parser": "^20.2.1"
+    "yargs-parser": "^20.2.3"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
