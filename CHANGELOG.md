@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/clowdhaus/watcher/compare/v1.4.0...v1.5.0) (2020-11-06)
+
+
+### Features
+
+* open source `terraform-min-max` to the public, bump dependencies ([b8588de](https://github.com/clowdhaus/watcher/commit/b8588de68b8bee6984681b632db66a3740fa250a))
+
 # [1.4.0](https://github.com/clowdhaus/watcher/compare/v1.3.0...v1.4.0) (2020-10-14)
 
 
