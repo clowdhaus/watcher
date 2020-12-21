@@ -7,17 +7,16 @@
 
 """
 
-import os
-import re
-from typing import Dict, Optional
-
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.tracing import Tracer
 from botocore.exceptions import ClientError
 from github.Repository import Repository
 
+import os
+import re
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEvent
+from typing import Dict, Optional
 
 #: DynamoDB table for versions
 VERSION_TABLE = os.environ.get('VERSION_TABLE')

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import boto3
+
 import json
+import moto
 import os
 import sys
-from typing import Dict
-
-import boto3
-import moto
 from _pytest.monkeypatch import MonkeyPatch
+from typing import Dict
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

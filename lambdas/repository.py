@@ -7,19 +7,18 @@
 
 """
 
-import functools
-import json
-import os
-from itertools import filterfalse
-from typing import Dict
-
-import yaml
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.tracing import Tracer
 from github.Repository import Repository
 
+import functools
+import json
+import os
+import yaml
+from itertools import filterfalse
 from lambdas import hub, sns
 from lambdas.hub import GithubEvent
+from typing import Dict
 
 #: GitHub Organization to collect data from
 ORGANIZATION = os.environ.get('GITHUB_ORGANIZATION')

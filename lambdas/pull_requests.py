@@ -7,17 +7,16 @@
 
 """
 
-import os
-import re
-from datetime import datetime
-from typing import Dict, List
-
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.tracing import Tracer
 from github.Repository import Repository
 
+import os
+import re
+from datetime import datetime
 from lambdas import dynamodb, hub, sns
 from lambdas.hub import GithubEvent
+from typing import Dict, List
 
 #: DynamoDB table for pull requests
 PR_TABLE = os.environ.get('PULL_REQUEST_TABLE')

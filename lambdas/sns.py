@@ -7,13 +7,13 @@
 
 """
 
-import json
-import os
-from typing import Dict, Optional, Union
-
 import boto3
 from aws_lambda_powertools.logging import Logger
 from botocore.exceptions import ClientError
+
+import json
+import os
+from typing import Dict, Optional, Union
 
 #: Base SNS message topic ARN
 SNS_ARN_PREFIX = os.environ.get('SNS_ARN_PREFIX')

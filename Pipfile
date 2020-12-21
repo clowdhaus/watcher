@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-aws-lambda-powertools = "~=1.9.0"
-boto3 = "~=1.16.35"
-botocore = "~=1.19.35"
+aws-lambda-powertools = "~=1.9.1"
+boto3 = "~=1.16.41"
+botocore = "~=1.19.41"
 black = "*"
 flake8 = "*"
 isort = "*"
@@ -33,7 +33,7 @@ complexity = "python3 -m radon cc lambdas/*.py -a"
 halstead = "python3 -m radon hal lambdas/*.py"
 typecheck = "python3 -m mypy lambdas/"
 lint = "python3 -m flake8 . --count --statistics --benchmark --exit-zero --config=.flake8"
-imports = "python3 -m isort --recursive --apply --ignore-whitespace"
+imports = "python3 -m isort --ignore-whitespace ."
 format = "python3 -m black ."
 
 [pipenv]

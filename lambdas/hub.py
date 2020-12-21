@@ -7,14 +7,6 @@
 
 """
 
-import functools
-import hashlib
-import hmac
-import json
-import os
-from enum import Enum
-from typing import Dict, List
-
 import boto3
 import github
 from aws_lambda_powertools.logging import Logger
@@ -22,7 +14,14 @@ from aws_lambda_powertools.tracing import Tracer
 from github import Github
 from github.Repository import Repository
 
+import functools
+import hashlib
+import hmac
+import json
+import os
+from enum import Enum
 from lambdas import sns
+from typing import Dict, List
 
 REGION = os.environ.get('REGION', 'us-east-1')
 SSM_CLIENT = boto3.client('ssm', region_name=REGION)

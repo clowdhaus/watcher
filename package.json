@@ -24,10 +24,9 @@
     "release": "semantic-release"
   },
   "dependencies": {
-    "serverless": "2.15.0",
+    "serverless": "^2.16.0",
     "serverless-iam-roles-per-function": "^3.0.1",
-    "serverless-python-requirements": "^5.1.0",
-    "yargs-parser": "^20.2.4"
+    "serverless-python-requirements": "^5.1.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^5.0.1",
@@ -38,7 +37,7 @@
   },
   "resolutions": {
     "mem": "^8.0.0",
-    "yargs-parser": "^20.2.3"
+    "yargs-parser": "^20.2.4"
   },
   "config": {
     "commitizen": {
