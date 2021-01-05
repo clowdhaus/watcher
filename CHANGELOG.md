@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/clowdhaus/watcher/compare/v1.5.0...v1.6.0) (2021-01-05)
+
+
+### Features
+
+* open source `terraform-aws-rds-proxy` to the public, bump dependencies ([746923e](https://github.com/clowdhaus/watcher/commit/746923ee03ccccca050ef7693f5a9fb0f5475eb6))
+
 # [1.5.0](https://github.com/clowdhaus/watcher/compare/v1.4.0...v1.5.0) (2020-11-06)
 
 
