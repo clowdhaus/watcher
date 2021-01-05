@@ -58,6 +58,8 @@ metadata:
   private: false
 terraform-aws-datadog-forwarders:
   private: false
+terraform-aws-rds-proxy:
+  private: false
 terraform-min-max:
   private: false
 .github:
