@@ -46,6 +46,8 @@ default:
 
 actions:
   private: false
+amped:
+  private: false
 aws-github-actions:
   private: false
 chunky:
