@@ -58,6 +58,8 @@ watcher:
   private: false
 metadata:
   private: false
+netted:
+  private: true
 terraform-aws-datadog-forwarders:
   private: false
 terraform-aws-rds-proxy:
