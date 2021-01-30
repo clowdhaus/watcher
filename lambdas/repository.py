@@ -57,7 +57,6 @@ def _repo_settings_sync(repo: Repository):
     default_branch_name = default_branch.get('name')
 
     repo.edit(
-        private=config.get('private'),
         has_issues=config.get('has_issues'),
         has_projects=config.get('has_projects'),
         has_wiki=config.get('has_wiki'),

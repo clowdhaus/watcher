@@ -43,28 +43,3 @@ default:
     - name: ':skull: wontfix'
       color: e4e669
       description: Will not be implemented
-
-actions:
-  private: false
-amped:
-  private: false
-aws-github-actions:
-  private: false
-chunky:
-  private: false
-compress:
-  private: false
-watcher:
-  private: false
-metadata:
-  private: false
-netted:
-  private: true
-terraform-aws-datadog-forwarders:
-  private: false
-terraform-aws-rds-proxy:
-  private: false
-terraform-min-max:
-  private: false
-.github:
-  private: false
