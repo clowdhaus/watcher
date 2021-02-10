@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-aws-lambda-powertools = "~=1.9.1"
-boto3 = "~=1.16.48"
-botocore = "~=1.19.48"
+aws-lambda-powertools = "~=1.10"
+boto3 = "~=1.17"
+botocore = "~=1.20"
 black = "*"
 flake8 = "*"
 isort = "*"
@@ -19,9 +19,9 @@ pygithub = "~=1.54"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
-pyyaml = "~=5.3.1"
+pyyaml = "~=5.4"
 radon = "*"
-requests = "~=2.24.0"
+requests = "~=2.25.0"
 
 [requires]
 python_version = "3.8"
