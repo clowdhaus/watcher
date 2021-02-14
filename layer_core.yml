@@ -14,7 +14,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   deploymentBucket:
-    name: serverless-${self:custom.account_id}-${self:provider.region}
+    name: serverless-028920223318-us-east-1
     serverSideEncryption: AES256
   tags:
     service: watcher

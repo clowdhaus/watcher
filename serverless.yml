@@ -6,7 +6,7 @@ custom:
   stage_long:
     dev: development
     prod: production
-  account_id: ${file(variables.yml):account_id}
+  account_id: ${file(./variables.yml):account_id}
   lambdaArnPrefix: arn:aws:lambda:${self:provider.region}:${self:custom.account_id}:function:${self:service}-${self:provider.stage}
   snsArnPrefix: arn:aws:sns:${self:provider.region}:${self:custom.account_id}
   dynamodbArnPrefix: arn:aws:dynamodb:${self:provider.region}:${self:custom.account_id}:table
@@ -24,7 +24,7 @@ provider:
   memorySize: 256
   logRetentionInDays: 30
   deploymentBucket:
-    name: serverless-${self:custom.account_id}-${self:provider.region}
+    name: serverless-028920223318-us-east-1
     serverSideEncryption: AES256
   versionFunctions: false
   environment:
