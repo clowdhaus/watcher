@@ -14,10 +14,10 @@
 </p>
 <p align="center">
   <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Atest">
-    <img src="https://github.com/clowdhaus/watcher/workflows/test/badge.svg?branch=master" alt="test">
+    <img src="https://github.com/clowdhaus/watcher/workflows/test/badge.svg?branch=main" alt="test">
   </a>
   <a href="https://github.com/clowdhaus/watcher/actions?query=workflow%3Adeploy">
-    <img src="https://github.com/clowdhaus/watcher/workflows/deploy/badge.svg?branch=master" alt="deploy">
+    <img src="https://github.com/clowdhaus/watcher/workflows/deploy/badge.svg?branch=main" alt="deploy">
   </a>
   <a href="https://snyk.io/test/github/clowdhaus/watcher">
     <img src="https://snyk.io/test/github/clowdhaus/watcher/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/clowdhaus/watcher">

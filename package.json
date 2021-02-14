@@ -33,7 +33,7 @@
     "@semantic-release/git": "^9.0.0",
     "commitizen": "^4.2.3",
     "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^17.3.8"
+    "semantic-release": "^17.3.9"
   },
   "resolutions": {
     "mem": "^8.0.0",
@@ -46,7 +46,7 @@
   },
   "release": {
     "branches": [
-      "master"
+      "main"
     ],
     "ci": false,
     "plugins": [

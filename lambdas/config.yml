@@ -43,3 +43,7 @@ default:
     - name: ':skull: wontfix'
       color: e4e669
       description: Will not be implemented
+
+watcher:
+  default_branch:
+    name: main
