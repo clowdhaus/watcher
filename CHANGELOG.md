@@ -1,3 +1,11 @@
+## [1.6.1](https://github.com/clowdhaus/watcher/compare/v1.6.0...v1.6.1) (2021-02-14)
+
+
+### Bug Fixes
+
+* hardcode deployment bucket since it stopped working ([36d83dc](https://github.com/clowdhaus/watcher/commit/36d83dc002bdc13cb7e043c012b7e5b8e472d889))
+* rename `master` to `main` and update project dependencies ([8c0a088](https://github.com/clowdhaus/watcher/commit/8c0a088ba747fdcdc766e53395fb20c180d1ad5a))
+
 # [1.6.0](https://github.com/clowdhaus/watcher/compare/v1.5.0...v1.6.0) (2021-01-05)
 
 
