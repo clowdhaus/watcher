@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/clowdhaus/watcher/compare/v1.6.1...v1.6.2) (2021-02-15)
+
+
+### Bug Fixes
+
+* change all references of `master` to `main` ([d2f8ad3](https://github.com/clowdhaus/watcher/commit/d2f8ad347c5a408957811749c6db2329b61c97ac))
+
 ## [1.6.1](https://github.com/clowdhaus/watcher/compare/v1.6.0...v1.6.1) (2021-02-14)
 
 
