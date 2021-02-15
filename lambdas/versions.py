@@ -107,14 +107,14 @@ def create_release(event: Dict, _c: Dict) -> Dict:
 
     if msg.get('X-GitHub-Event') == 'create':
         updated_repo = hub.get_github_repo(msg.get('repository', {}).get('full_name'))
-        master = updated_repo.get_branch('master')
+        main = updated_repo.get_branch('main')
         tag_name = msg.get('ref')
         ref = updated_repo.get_git_ref(f'tags/{tag_name}')
         tag = updated_repo.get_git_tag(sha=ref.object.sha)
         message = f'### {tag_name}\n\n- {tag.message.lstrip("-").strip()}\n'
 
         updated_repo.create_git_release(
-            tag=tag_name, name=tag_name, message=message, draft=False, prerelease=False, target_commitish=master
+            tag=tag_name, name=tag_name, message=message, draft=False, prerelease=False, target_commitish=main
         )
 
 

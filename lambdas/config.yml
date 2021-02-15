@@ -4,7 +4,7 @@ default:
   has_projects: false
   has_wiki: false
   default_branch:
-    name: master
+    name: main
     require_code_owner_reviews: true
   allow_squash_merge: true
   allow_merge_commit: false
