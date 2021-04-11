@@ -123,7 +123,7 @@ def _valid_signature(headers: Dict, body: str) -> bool:
     computed_signature = hmac.new(signing_secret, body.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
 
     if not hmac.compare_digest(signature_parts[1], computed_signature):
-        logger.error({'operation': '_valid_signature', 'expected': signature_parts[1], 'computed': computed_signature})
+        logger.exception({'operation': '_valid_signature', 'expected': signature_parts[1], 'computed': computed_signature})
         return False
     return True
 
@@ -145,11 +145,12 @@ def _distribute_payload(payload: Dict):
         event = GithubEvent.pull_request
 
     if event:
+        logger.info(f'Topic Arn: {event.topic_arn}')
         sns.emit_sns_msg(message={event.value: payload}, topic_arn=event.topic_arn)
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@logger.inject_lambda_context(log_event=True)
 def receive(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to receive and validate GitHub webhooks before passing along payload.
@@ -177,5 +178,5 @@ def receive(event: Dict, _c: Dict) -> Dict:
         'body': 'GitHub signature does not match',
         'headers': {**JSON_CONTENT},
     }
-    logger.error(err)
+    logger.exception(err)
     return err

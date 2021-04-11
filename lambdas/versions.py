@@ -72,7 +72,7 @@ def _update_version_table(data: dict):
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def new_tag(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function that responds to new tag events.
@@ -93,7 +93,7 @@ def new_tag(event: Dict, _c: Dict) -> Dict:
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def create_release(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function that responds to new tag events to create a release.
@@ -119,7 +119,7 @@ def create_release(event: Dict, _c: Dict) -> Dict:
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def update_readme(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to update versions section of metadata repo README file.
@@ -166,7 +166,7 @@ def update_readme(event: Dict, _c: Dict) -> Dict:
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def sync(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository versions.
