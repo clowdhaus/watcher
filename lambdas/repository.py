@@ -85,7 +85,7 @@ def _repo_settings_sync(repo: Repository):
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def update(event: Dict, _c: Dict):
     """
     Lambda function that responds to repository events.
@@ -104,7 +104,7 @@ def update(event: Dict, _c: Dict):
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def sync(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository's settings to config settings.
@@ -145,7 +145,7 @@ def _label_sync(repo: Repository):
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def update_labels(event: Dict, _c: Dict):
     """
     Lambda function to update repository labels to match config settings.
@@ -161,7 +161,7 @@ def update_labels(event: Dict, _c: Dict):
 
 
 @tracer.capture_lambda_handler
-@logger.inject_lambda_context
+@loggerinject_lambda_context(log_event=True)
 def sync_labels(event: Dict, _c: Dict) -> Dict:
     """
     Lambda function to sync all repository labels to config settings.
