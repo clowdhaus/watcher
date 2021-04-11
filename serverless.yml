@@ -1,6 +1,6 @@
 service: watcher
 
-frameworkVersion: '>=1.73.0'
+frameworkVersion: '2'
 
 custom:
   stage_long:
@@ -23,6 +23,8 @@ provider:
   timeout: 30
   memorySize: 256
   logRetentionInDays: 30
+  apiGateway:
+    shouldStartNameWithService: true
   deploymentBucket:
     name: serverless-028920223318-us-east-1
     serverSideEncryption: AES256
@@ -41,13 +43,15 @@ provider:
     environment: ${self:custom.stage_long.${self:provider.stage}}
     createdby: serverless
     repository: https://github.com/clowdhaus/watcher
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - xray:PutTraceSegments
-        - xray:PutTelemetryRecords
-      Resource:
-        - '*'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - xray:PutTraceSegments
+            - xray:PutTelemetryRecords
+          Resource:
+            - '*'
 
 resources:
   Resources:
@@ -107,7 +111,7 @@ functions:
         Action:
           - ssm:GetParameter
         Resource:
-          - arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_webhook_secret
+          - '*' # arn:aws:ssm:us-east-1:${self:custom.account_id}:parameter/watcher/github_webhook_secret
       - Effect: Allow
         Action:
           - sns:Publish

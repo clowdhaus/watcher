@@ -38,7 +38,7 @@ def emit_sns_msg(message: Union[str, Dict], topic_arn: str = EMIT_MESSAGE_TOPIC,
     try:
         SNS_CLIENT.publish(Message=msg, TopicArn=topic_arn, **kwargs)
     except ClientError as err:
-        logger.error(f'Unable to publish SNS message {message} to topic `{topic_arn}`', error=err)
+        logger.exception(f'Unable to publish SNS message {message} to topic `{topic_arn}`')
         raise
 
 
@@ -54,5 +54,5 @@ def get_sns_msg(event: Dict, msg_key: str) -> Optional[Dict]:
     try:
         return event_msg[msg_key]
     except KeyError:
-        logger.error({'operation': 'get_sns_msg', 'event_message': event_msg})
+        logger.exception({'operation': 'get_sns_msg', 'event_message': event_msg})
         raise
