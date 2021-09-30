@@ -38,6 +38,7 @@
     "semantic-release": "^18.0.0"
   },
   "resolutions": {
+    "ansi-regex": "^5.0.1",
     "mem": "^8.0.0",
     "yargs-parser": "^20.2.4"
   },
