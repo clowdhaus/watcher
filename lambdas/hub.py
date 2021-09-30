@@ -123,7 +123,9 @@ def _valid_signature(headers: Dict, body: str) -> bool:
     computed_signature = hmac.new(signing_secret, body.encode('utf-8'), digestmod=hashlib.sha1).hexdigest()
 
     if not hmac.compare_digest(signature_parts[1], computed_signature):
-        logger.exception({'operation': '_valid_signature', 'expected': signature_parts[1], 'computed': computed_signature})
+        logger.exception(
+            {'operation': '_valid_signature', 'expected': signature_parts[1], 'computed': computed_signature}
+        )
         return False
     return True
 
