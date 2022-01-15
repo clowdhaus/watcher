@@ -2,43 +2,26 @@
   "name": "watcher",
   "version": "1.3.0",
   "description": "Watches and responds to GitHub changes via webhooks",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:clowdhaus/watcher.git"
-  },
   "keywords": [
     "github",
     "event-driven",
     "serverless",
     "lambda"
   ],
-  "author": "Clowd Haus, LLC",
-  "license": "Apache-2.0",
+  "homepage": "https://github.com/clowdhaus/watcher/#readme",
   "bugs": {
     "url": "https://github.com/clowdhaus/watcher/issues"
   },
-  "homepage": "https://github.com/clowdhaus/watcher/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:clowdhaus/watcher.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Clowd Haus, LLC",
   "scripts": {
-    "test": "echo 'Need to write tests!'",
     "commit": "npx git-cz",
-    "release": "semantic-release"
-  },
-  "dependencies": {
-    "serverless": "^2.71.0",
-    "serverless-iam-roles-per-function": "^3.2.0",
-    "serverless-python-requirements": "^5.3.0",
-    "yargs-parser": "^21.0.0"
-  },
-  "devDependencies": {
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "commitizen": "^4.2.4",
-    "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^18.0.1"
-  },
-  "resolutions": {
-    "ansi-regex": "^5.0.1",
-    "json-schema": ">=0.4.0"
+    "release": "semantic-release",
+    "test": "echo 'Need to write tests!'"
   },
   "config": {
     "commitizen": {
@@ -71,5 +54,23 @@
         }
       ]
     ]
+  },
+  "resolutions": {
+    "ansi-regex": "^5.0.1",
+    "json-schema": ">=0.4.0",
+    "marked": ">=4.0.10"
+  },
+  "dependencies": {
+    "serverless": "^2.71.0",
+    "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-python-requirements": "^5.3.0",
+    "yargs-parser": "^21.0.0"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "semantic-release": "^18.0.1"
   }
 }
