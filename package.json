@@ -61,9 +61,9 @@
     "marked": ">=4.0.10"
   },
   "dependencies": {
-    "serverless": "^2.71.0",
+    "serverless": "^3.2.0",
     "serverless-iam-roles-per-function": "^3.2.0",
-    "serverless-python-requirements": "^5.3.0",
+    "serverless-python-requirements": "^5.3.1",
     "yargs-parser": "^21.0.0"
   },
   "devDependencies": {
@@ -71,6 +71,6 @@
     "@semantic-release/git": "^10.0.1",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^18.0.1"
+    "semantic-release": "^19.0.2"
   }
 }
